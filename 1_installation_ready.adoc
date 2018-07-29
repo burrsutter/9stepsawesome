@@ -1,0 +1,288 @@
+= Step 1: Installation & Getting Started
+
+Create and change into a directory where you would like to work.
+
+== Setup
+
+=== Prerequisites
+* Docker for Mac/Windows
+* git
+* Apache Maven (compilation of Java projects)
+* curl, tar
+* minikube and/or minishift will be downloaded below
+* kubectl and/or oc will be downloaded below
+
+=== Downloads
+Download & Install Kubernetes CLI
+[source,bash]
+----
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.1/bin/darwin/amd64/kubectl 
+chmod +x kubectl
+----
+Instructions for finding and downloading the a kubectl 
+https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
+
+Download & Install Minikube Cluster
+[source,bash]
+----
+$ curl -LO minikube https://storage.googleapis.com/minikube/releases/v0.28.1/minikube-darwin-amd64
+$ chmod +x minikube 
+----
+More Minikube releases https://github.com/kubernetes/minikube/releases
+
+or
+
+Download & Install Minishift Cluster
+[source,bash]
+----
+$ curl -LO curl -LO https://github.com/minishift/minishift/releases/download/v1.21.0/minishift-1.21.0-darwin-amd64.tgz
+$ tar -xvf minishift-1.21.0-darwin-amd64.tgz 
+----
+More Minishift releases https://github.com/minishift/minishift/releases
+
+Note: "minikube" should be interchangeable with "minishift" in the instructions below, if there is a unique aspect then that will be called out.  For instance, minishift has "minishift console" vs "minikube dashboard".
+
+
+=== Environment
+[source,bash]
+----
+#!/bin/bash
+
+export MINIKUBE_HOME=/Users/burrsutter/minikube_0.28.1/bin;
+export PATH=$MINIKUBE_HOME:$PATH
+----
+
+[source,bash]
+----
+$ minikube version
+minikube version: v0.28.1
+----
+
+=== Create the VM
+[source,bash]
+----
+#!/bin/bash
+
+minikube config set memory 8192
+minikube config set cpus 3 <1>
+minikube config set vm-driver virtualbox #hyperkit
+minikube start
+----
+<1> I use 3 cpus here becuase I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
+There is nothing in this series of exercises that is CPU intensive.
+
+=== Check status, IP & Dashboard/Console
+----
+$ minikube config view
+- cpus: 3
+- memory: 8192
+- vm-driver: virtualbox
+$ minikube status
+minikube: Running
+cluster: Running
+kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.103
+$ minikube ip
+192.168.99.103
+$ minikube dashboard --url
+http://192.168.99.103:30000
+$ minikube dashboard
+----
+https://screencast.com/t/inpzd7mB
+or
+https://screencast.com/t/My5oZLiC7d
+
+
+=== Check your kubectl CLI
+----
+$ kubectl config current-context
+minikube
+
+$ kubectl version
+Client Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.1", GitCommit:"d4ab47518836c750f9949b9e0d387f20fb92260b", GitTreeState:"clean", BuildDate:"2018-04-12T14:26:04Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"darwin/amd64"}
+Server Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.0", GitCommit:"fc32d2f3698e36b93322a3465f63a14e9f0eaead", GitTreeState:"clean", BuildDate:"2018-03-26T16:44:10Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
+----
+and if needed, point kubectl back at minikube with "kubectl config use-context minikube"
+
+=== Namespaces & Pods
+----
+$ kubectl get namespaces
+
+$ kubectl get pod --all-namespaces
+----
+
+=== Configure Env for Docker 
+----
+$ minikube docker-env
+export DOCKER_TLS_VERIFY="1"
+export DOCKER_HOST="tcp://192.168.99.103:2376"
+export DOCKER_CERT_PATH="/Users/burrsutter/minikube_0.28.1/bin/.minikube/certs"
+export DOCKER_API_VERSION="1.35"
+# or
+$ eval $(minikube docker-env)
+----
+
+=== Using Docker CLI 
+----
+$ docker ps
+$ docker images
+----
+These commands should now be pulling from your minikube/minishift hosted docker daemon.  You can turn off the Docker for Mac/Windows daemon to save memory.
+
+
+=== Minikube/Minishift Happy?
+----
+$ minikube ssh <1>
+$ free -h
+$ df -h
+$ top
+$ ctrl-c
+$ exit
+----
+<1> you can shell into your VM and check on resources
+
+== Hello World
+
+The "default" namespace should already be the current context, but setting it here to make it obvious
+
+----
+$ kubectl config set-context $(kubectl config current-context) --namespace=default
+----
+
+The imperative "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production
+----
+$ kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080
+----
+
+It produces a Deployment
+----
+$ kubectl get deployments
+NAME             DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+hello-minikube   1         1         1            1           7s
+----
+
+which produces a Pods
+----
+$ kubectl get pods
+NAME                              READY     STATUS    RESTARTS   AGE
+hello-minikube-7c77b68cff-2xcpp   1/1       Running   0          27s
+----
+
+You create a Service
+----
+$ kubectl expose deployment hello-minikube --type=NodePort
+service "hello-minikube" exposed
+----
+
+and see that newly minted Service object
+----
+$ kubectl get service
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+hello-minikube   NodePort    10.97.139.177   <none>        8080:32403/TCP   20s
+kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP           1h
+----
+
+You can find the Service's URL 
+----
+$ minikube service hello-minikube --url
+http://192.168.99.103:32403
+# and curl it
+$ curl $(minikube service hello-minikube --url)
+----
+or just load up the URL in your favorite browser
+https://screencast.com/t/k5GVJlfg
+
+The Deployment that was generated via your "kubectl run" commamnd actually has a bunch of interesting defaults
+----
+$ kubectl describe deployment hello-minikube
+Name:                   hello-minikube
+Namespace:              default
+CreationTimestamp:      Sun, 29 Jul 2018 15:21:38 -0400
+Labels:                 run=hello-minikube
+Annotations:            deployment.kubernetes.io/revision=1
+Selector:               run=hello-minikube
+Replicas:               1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  1 max unavailable, 1 max surge
+Pod Template:
+  Labels:  run=hello-minikube
+  Containers:
+   hello-minikube:
+    Image:        k8s.gcr.io/echoserver:1.10
+    Port:         8080/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   hello-minikube-7c77b68cff (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  5m    deployment-controller  Scaled up replica set hello-minikube-7c77b68cff to 1
+----
+
+but that is beyond the scope of simply getting started, just remember the "kubectl describe <object>" trick for future reference.
+
+=== Clean up
+----
+$ kubectl delete service hello-minikube
+
+$ kubectl delete deployment hello-minikube
+----
+And you will notice that the pod also terminates. In another terminal window, use the -w to watch as the pod changes state
+
+----
+$ kubectl get pods -w
+NAME                              READY     STATUS    RESTARTS   AGE
+hello-minikube-7c77b68cff-2xcpp   1/1       Running   0          8m
+hello-minikube-7c77b68cff-2xcpp   1/1       Terminating   0         9m
+hello-minikube-7c77b68cff-2xcpp   0/1       Terminating   0         9m
+----
+Use Ctrl-c to stop watching pods
+
+You can shutdown the VM to save resources when not in use
+----
+$ minikube stop
+# go about your business
+$ minikube start
+----
+http://www.screencast.com/t/6CNF5WwFL
+
+
+and if you need to clean up the VM
+----
+$ minikube delete
+----
+
+Your minikube configuration goes in a hidden directory at
+----
+$MINIKUBE_HOME/.minikube/machines/minikube/config.json 
+----
+
+and your kubectl configuration goes in a different hidden directory at
+----
+$HOME/.kube/config
+----
+and if thing go really badly, you might need to wipe out those directories
+----
+$ rm -rf ~/.kube
+$ rm -rf $MINIKUBE_HOME/.minikube
+----
+
+== More resources
+https://github.com/kubernetes/minikube#installation
+https://kubernetes.io/docs/setup/minikube/#quickstart
+including proxy challenges
+Hyperkit for Mac
+https://github.com/kubernetes/minikube/blob/master/docs/drivers.md#hyperkit-driver
+Node.js tutorial
+https://kubernetes.io/docs/tutorials/hello-minikube/
+
+Dealing with multiple clusters
+https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/#define-clusters-users-and-contexts
