@@ -1,0 +1,58 @@
+= Step 2: Building Images & Running Containers
+Burr Sutter <burrsutter@gmail.com>
+
+ifndef::codedir[:codedir: kubefiles]
+ifndef::imagesdir[:imagesdir: images]
+
+== Namespaces
+The resources (your apps) you create can be organized into namespaces which are particularly helpful when dealing with a larger team.
+
+You can create a namespace via simple command
+----
+$ kubectl create namespace demo
+$ kubectl get namespaces
+NAME          STATUS    AGE
+default       Active    22h
+demo          Active    6m
+kube-public   Active    21h
+kube-system   Active    22h
+----
+
+The -o yaml trick is a great way to see what the command created
+
+----
+$ kubectl get namespace/demo -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: 2018-07-29T22:27:27Z
+  name: demo
+  resourceVersion: "21330"
+  selfLink: /api/v1/namespaces/demo
+  uid: 92a63dee-937e-11e8-9a0f-080027cd86aa
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+----
+
+Deleting a Namespace is also available via command
+
+----
+$ kubectl delete namespace/demo 
+----
+
+Your objects should be created via a file that can be checked into source control.  Create a Namespace via yaml.
+
+----
+$ kubectl create -f kubefiles/myspace-namespace.yml
+----
+
+[source,yaml]
+----
+include::{codedir}/myspace-namespace.yml
+----
+
+Now that you have a Namespace, you need to craft some code
+

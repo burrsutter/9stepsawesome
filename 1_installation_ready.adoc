@@ -1,4 +1,8 @@
 = Step 1: Installation & Getting Started
+Burr Sutter <burrsuter@gmail.com>
+
+ifndef::codedir[:codedir: code]
+ifndef::imagesdir[:imagesdir: images]
 
 Create and change into a directory where you would like to work.
 
