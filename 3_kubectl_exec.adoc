@@ -5,5 +5,173 @@ ifndef::codedir[:codedir: kubefiles]
 ifndef::imagesdir[:imagesdir: images]
 
 == Linux FTW
+Those pods are running little Linux machines (and JVMs or whatever you might have loaded in)
 
+----
+$ kubectl get pods --show-labels
+NAME                      READY     STATUS    RESTARTS   AGE       LABELS
+myboot-68d666dd8d-m9m5r   1/1       Running   1          43m       app=myboot,pod-template-hash=2482228848
+----
 
+or 
+
+----
+$ kubectl get pods -l app=myboot 
+kubectl get pods -l app=myboot 
+NAME                      READY     STATUS    RESTARTS   AGE
+myboot-68d666dd8d-m9m5r   1/1       Running   1          44m
+----
+
+You should still be running the resource contrained deployment, which you can double-check with kubectl describe
+
+----
+$ kubectl describe deployment/myboot
+...
+    Limits:
+      cpu:     1
+      memory:  400Mi
+    Requests:
+      cpu:        250m
+      memory:     300Mi
+...      
+----
+
+You can hit its "consume" endpoint some more, watching it OOMKilled and restart
+
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
+----
+
+and
+
+----
+$ kubectl get pods -w
+NAME                      READY     STATUS    RESTARTS   AGE
+myboot-68d666dd8d-m9m5r   1/1       Running   1          1h
+myboot-68d666dd8d-m9m5r   0/1       OOMKilled   1         1h
+myboot-68d666dd8d-m9m5r   1/1       Running   2         1h
+----
+
+But now let's try to figure out WHY this Java-based thing is getting killed.
+
+You can "exec" into the running pod.
+
+First you need the pod identifier and while you could just copy and paste it, it is more fun to play with jsonpath and bash scripting
+
+----
+$ PODID=$(kubectl get pods -l app=myboot -o 'jsonpath={.items[0].metadata.name}')
+$ echo $PODID
+----
+
+and then use that to exec into the pod
+
+----
+$ kubectl exec -i -t $PODID /bin/bash
+root@myboot-68d666dd8d-m9m5r:/app# echo 'now inside the pod'
+now inside the pod
+----
+
+Try some fun commands like 
+----
+$ ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0 18:48 ?        00:00:00 /bin/sh -c java -XX:+PrintFlagsF
+root         5     1  0 18:48 ?        00:00:07 java -XX:+PrintFlagsFinal -XX:+P
+root        38     0  0 19:05 pts/0    00:00:00 /bin/bash
+root        42    38  0 19:05 pts/0    00:00:00 ps -ef
+----
+
+or 
+
+----
+$ top
+top - 19:06:41 up  6:40,  0 users,  load average: 0.28, 0.20, 0.21
+Tasks:   4 total,   1 running,   3 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  1.9 us,  1.4 sy,  0.0 ni, 96.5 id,  0.0 wa,  0.0 hi,  0.2 si,  0.0 st
+KiB Mem :  6101432 total,  3008716 free,   915304 used,  2177412 buff/cache
+KiB Swap:  1023996 total,  1023468 free,      528 used.  5081804 avail Mem 
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND     
+    1 root      20   0    4292    756    684 S   0.0  0.0   0:00.00 sh          
+    5 root      20   0 4044220 272940  16816 S   0.0  4.5   0:07.57 java        
+   38 root      20   0   19960   3648   3084 S   0.0  0.1   0:00.00 bash        
+   43 root      20   0   42788   3424   2952 R   0.0  0.1   0:00.00 top  
+----
+
+or
+
+what linux distribution is that image using?
+----
+$ cat /etc/os-release
+PRETTY_NAME="Debian GNU/Linux 9 (stretch)"
+NAME="Debian GNU/Linux"
+VERSION_ID="9"
+VERSION="9 (stretch)"
+ID=debian
+HOME_URL="https://www.debian.org/"
+SUPPORT_URL="https://www.debian.org/support"
+BUG_REPORT_URL="https://bugs.debian.org/"
+----
+
+or
+
+----
+$ free -h
+              total        used        free      shared  buff/cache   available
+Mem:           5.8G        893M        2.9G         25M        2.1G        4.8G
+Swap:          999M        528K        999M
+----
+
+And now you might see part of the problem.  "free" is not cgroups aware, it thinks it has access to the whole VMs memory.
+
+No wonder the JVM reports a larger than accurate Max memory
+----
+$ curl localhost:8080/sysresources
+ Memory: 1324 Cores: 2
+$ java version
+openjdk version "1.8.0_171"
+OpenJDK Runtime Environment (build 1.8.0_171-8u171-b11-1~deb9u1-b11)
+OpenJDK 64-Bit Server VM (build 25.171-b11, mixed mode)
+$ java -XshowSettings:vm -version
+VM settings:
+    Max. Heap Size (Estimated): 1.29G
+    Ergonomics Machine Class: server
+    Using VM: OpenJDK 64-Bit Server VM
+
+openjdk version "1.8.0_171"
+OpenJDK Runtime Environment (build 1.8.0_171-8u171-b11-1~deb9u1-b11)
+OpenJDK 64-Bit Server VM (build 25.171-b11, mixed mode)
+----
+
+So we can check out the cgroups settings
+
+----
+$ cd /sys/fs/cgroup/memory/
+$ cat memory.limit_in_bytes
+419430400
+----
+
+And if you divide that 419430400 by 1024 and 1024, you end up with the 400 that was specified in the deployment yaml
+
+If you have a JVM of 1.8.0_131 or higher then you can try the experimental options
+----
+$ java -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XshowSettings:vm -version
+VM settings:
+    Max. Heap Size (Estimated): 112.00M
+    Ergonomics Machine Class: server
+    Using VM: OpenJDK 64-Bit Server VM
+
+openjdk version "1.8.0_171"
+OpenJDK Runtime Environment (build 1.8.0_171-8u171-b11-1~deb9u1-b11)
+OpenJDK 64-Bit Server VM (build 25.171-b11, mixed mode)
+----
+
+and you will notice a very different calculation for Max heap, now it is 112M, about 1/4 of the cgroups constrained memory.
+
+You can now either manually set -Xmx or use the experimental flags for JVM startup.
+
+To leave this pod, simply type "exit" and hit enter
+
+----
+$ exit 
+----
