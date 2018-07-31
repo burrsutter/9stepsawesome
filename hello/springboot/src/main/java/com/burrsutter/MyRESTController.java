@@ -13,13 +13,15 @@ public class MyRESTController {
 
    @RequestMapping("/")
    public String sayHello() {
-       return "Bonjour from Spring Boot! " + count++ + " on " + hostname + "\n";
+       System.out.println("/ " + hostname);
+       return "Hello from Spring Boot! " + count++ + " on " + hostname + "\n";
    }
 
    @RequestMapping("/sysresources") 
    public String getSystemResources() {
         long memory = Runtime.getRuntime().maxMemory();
         int cores = Runtime.getRuntime().availableProcessors();
+        System.out.println("/sysresources " + hostname);
         return 
             " Memory: " + (memory / 1024 / 1024) +
             " Cores: " + cores + "\n";
@@ -27,7 +29,8 @@ public class MyRESTController {
 
    @RequestMapping("/consume") 
    public String consumeSome() {
-        System.out.println("Starting to allocate memory...");
+        System.out.println("/consume " + hostname);
+        
         Runtime rt = Runtime.getRuntime();
         StringBuilder sb = new StringBuilder();
         long maxMemory = rt.maxMemory();
