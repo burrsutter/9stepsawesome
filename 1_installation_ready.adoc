@@ -45,7 +45,7 @@ $ tar -xvf minishift-1.21.0-darwin-amd64.tgz
 ----
 More Minishift releases https://github.com/minishift/minishift/releases
 
-Note: "minikube" should be interchangeable with "minishift" in the instructions below, if there is a unique aspect then that will be called out.  For instance, minishift has "minishift console" vs "minikube dashboard".
+Note: "minikube" should be interchangeable with "minishift" in the instructions below, if there is a unique aspect then that will be called out.  
 
 
 === Environment
