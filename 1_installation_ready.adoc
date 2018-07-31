@@ -11,6 +11,7 @@ Create and change into a directory where you would like to work.
 === Prerequisites
 * Docker for Mac/Windows
 * git
+* JDK 
 * Apache Maven (compilation of Java projects)
 * curl, tar
 * minikube and/or minishift will be downloaded below
@@ -59,7 +60,10 @@ export PATH=$MINIKUBE_HOME:$PATH
 [source,bash]
 ----
 $ minikube version
-minikube version: v0.28.1
+minikube version: v0.28.
+# or
+$ minishift version
+minishift v1.21.0+a8c8b37
 ----
 
 === Create the VM
@@ -67,13 +71,15 @@ minikube version: v0.28.1
 ----
 #!/bin/bash
 
-minikube config set memory 8192
-minikube config set cpus 3 <1>
+minikube config set memory 6144
+minikube config set cpus 2 <1>
 minikube config set vm-driver virtualbox #hyperkit
+# minishift addon enable admin-user <2>
 minikube start
 ----
-<1> I use 3 cpus here becuase I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
+<1> I use 3 cpus here because I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
 There is nothing in this series of exercises that is CPU intensive.
+<2> Minishift is secured by default, this creates an cluster "admin" user
 
 === Check status, IP & Dashboard/Console
 ----
@@ -123,7 +129,10 @@ export DOCKER_CERT_PATH="/Users/burrsutter/minikube_0.28.1/bin/.minikube/certs"
 export DOCKER_API_VERSION="1.35"
 # or
 $ eval $(minikube docker-env)
+# and
+# eval $(minishift oc-env) <1>
 ----
+<1> This command puts the "oc" CLI tool in your PATH
 
 === Using Docker CLI 
 ----
@@ -146,13 +155,19 @@ $ exit
 
 == Hello World
 
+Minishift is secured by default and requires you to login
+
+----
+$ oc login $(minishift ip):8443 -u admin -p admin
+----
+
 The "default" namespace should already be the current context, but setting it here to make it obvious
 
 ----
 $ kubectl config set-context $(kubectl config current-context) --namespace=default
 ----
 
-The imperative "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production
+The command "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production
 ----
 $ kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080
 ----
@@ -164,11 +179,17 @@ NAME             DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 hello-minikube   1         1         1            1           7s
 ----
 
-which produces a Pods
+which produces a Pod
 ----
 $ kubectl get pods
 NAME                              READY     STATUS    RESTARTS   AGE
 hello-minikube-7c77b68cff-2xcpp   1/1       Running   0          27s
+
+# Tip, if you can not find your pod, perhaps it is in another namespace
+$ kubectl get pods --all-namespaces
+
+# and it can be fun to see what labels were applied to your pod
+$ kubectl get pods --show-labels
 ----
 
 You create a Service
@@ -233,6 +254,13 @@ Events:
 
 but that is beyond the scope of simply getting started, just remember the "kubectl describe <object>" trick for future reference.
 
+Another key tip to remember, is "get all" which is useful for seeing what other objects might be floating around
+----
+$ kubectl get all 
+# or with -n mynamespace
+$ kubectl get all -n default
+----
+ 
 === Clean up
 ----
 $ kubectl delete service hello-minikube
@@ -253,7 +281,7 @@ Use Ctrl-c to stop watching pods
 You can shutdown the VM to save resources when not in use
 ----
 $ minikube stop
-# go about your business
+# go about your business, come back later and
 $ minikube start
 ----
 http://www.screencast.com/t/6CNF5WwFL
@@ -281,12 +309,18 @@ $ rm -rf $MINIKUBE_HOME/.minikube
 
 == More resources
 https://github.com/kubernetes/minikube#installation
+
 https://kubernetes.io/docs/setup/minikube/#quickstart
 including proxy challenges
-Hyperkit for Mac
+
+*Hyperkit for Mac*
+
 https://github.com/kubernetes/minikube/blob/master/docs/drivers.md#hyperkit-driver
-Node.js tutorial
+
+*Node.js tutorial*
+
 https://kubernetes.io/docs/tutorials/hello-minikube/
 
-Dealing with multiple clusters
+*Dealing with multiple clusters*
+
 https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/#define-clusters-users-and-contexts

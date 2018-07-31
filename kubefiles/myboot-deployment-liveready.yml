@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: myboot
+    version: v1
+  name: myboot
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myboot
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: myboot
+        version: v1
+    spec:
+      containers:
+      - name: myboot
+        image: 9stepsawesome/myboot:v1         
+        ports:
+          - containerPort: 8080
+

@@ -46,13 +46,171 @@ $ kubectl delete namespace/demo
 Your objects should be created via a file that can be checked into source control.  Create a Namespace via yaml.
 
 ----
-$ kubectl create -f kubefiles/myspace-namespace.yml
+$ kubectl create -f kubefiles/myspace-namespace.yml # <1>
+$ kubectl config set-context minikube --namespace=myspace # <2>
+----
+<1> Using the yaml allows you to place this file in a source repository
+<2> The setting of the context means you have to type -n myspace less often.  Also, when using Minishift,
+"oc project myspace" is the equivalent command. In OpenShift projects = namespaces. 
+
+[source,yaml,subs="normal,attributes"]
+----
+include::kubefiles/myspace-namespace.yml[]
 ----
 
-[source,yaml]
+TODO: You can confirm your context with
 ----
-include::{codedir}/myspace-namespace.yml
+$ kubectl config current-context
 ----
 
+== Code
 Now that you have a Namespace, you need to craft some code
+
+The "hello" directory contains several "hello world" style projects.  Let's use SpringBoot
+Build and run a quick test of the endpoint.
+
+----
+$ cd hello/SpringBoot
+$ mvn clean package
+$ java -jar target/boot-demo-0.0.1.jar
+$ curl localhost:8080
+----
+
+Next create the docker image, first double check that you are still connected to the correct Docker daemon
+
+----
+$ docker images | grep 9steps
+$ docker build -t 9stepsawesome/myboot:v1 .
+----
+
+Test that docker image
+----
+$ minikube ip
+$ docker run -it -p 8080:8080 9stepsawesome/myboot:v1 
+$ curl $(minikube ip):8080
+----
+
+Since the docker container is running "inside" the minikube/minishift VM, you need to use its IP address
+ctrl-c to terminate the Spring Boot process and its docker container.
+
+
+== Deployment
+
+Next, deploy it as a pod inside of Kubernetes/OpenShift.  You could use the "kubectl run" command but here we will use a Deployment
+----
+$ kubectl create -f kubefiles/myboot-deployment.yml
+----
+
+And then see what happened
+----
+$ kubectl get all
+NAME                          READY     STATUS    RESTARTS   AGE
+pod/myboot-79bfc988c8-ttz5r   1/1       Running   0          25s
+
+NAME                     DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/myboot   1         1         1            1           25s
+
+NAME                                DESIRED   CURRENT   READY     AGE
+replicaset.apps/myboot-79bfc988c8   1         1         1         25s
+----
+
+== Service
+
+Create a Service
+----
+$ kubectl create -f kubefiles/myboot-service.yml 
+----
+
+Get the nodePort
+----
+$ kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}"
+----
+
+Curl that nodePort
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+----
+
+Perhaps build a little loop to curl that endpoint
+[source, bash]
+----
+while true
+do 
+  curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+  sleep .5;
+done
+----
+
+== Scale
+
+Let's scale up the application to 3 replicas, there are several possible ways to achieve this result.
+
+You can edit the myboot-deployment.yml, updating replicas to 3
+----
+$ kubectl replace -f kubefiles/myboot-deployment.yml
+----
+
+Or use the kubectl scale command
+----
+$ kubectl scale --replicas=2 deployment/myboot
+----
+
+Or you might patch it
+----
+$ kubectl patch deployment/myboot -p '{"spec":{"replicas":2}}'
+----
+
+Or use the kubectl edit command which essentially gives you "vi" for editing the deployment yaml
+----
+$ kubectl edit deployment/myboot
+/replicas
+esc-w-q
+----
+
+== Update
+
+Update MyRESTController.java
+----
+return "Bonjour from Spring Boot! " + count++ + " on " + hostname + "\n";
+----
+
+Compile & Build the fat jar
+----
+mvn clean package
+----
+
+You can test with "java -jar target/boot-demo-0.0.1.jar" and "curl localhost:8080".  Ideally, you would have unit tests executed with "mvn test" as well.
+
+Build the new docker image
+----
+$ docker build -t 9stepsawesome/myboot:v2 .
+$ docker images | grep myboot
+----
+
+Rollout the update
+----
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
+----
+
+And if you were running your polling curl command, you might see
+----
+Hello from Spring Boot! 346 on myboot-79bfc988c8-ttz5r
+Hello from Spring Boot! 270 on myboot-79bfc988c8-ntb8d
+Hello from Spring Boot! 348 on myboot-79bfc988c8-ttz5r
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
+Bonjour from Spring Boot! 0 on myboot-757658fc4c-qnvqx
+Bonjour from Spring Boot! 1 on myboot-757658fc4c-qnvqx
+----
+
+We will be working on that when we address Liveness and Readiness probes later...
+
+
+
+
 
