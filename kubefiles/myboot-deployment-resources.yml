@@ -16,7 +16,14 @@ spec:
     spec:
       containers:
       - name: myboot
-        image: 9stepsawesome/myboot:v1         
+        image: 9stepsawesome/myboot:v1     
+        resources:
+          requests: 
+            memory: "300Mi" 
+            cpu: "250m" # 1/4 core
+          limits:
+            memory: "400Mi"
+            cpu: "1000m" # 1 core
         ports:
           - containerPort: 8080
 

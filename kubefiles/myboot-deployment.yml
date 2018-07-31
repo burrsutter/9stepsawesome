@@ -3,19 +3,16 @@ kind: Deployment
 metadata:
   labels:
     app: myboot
-    version: v1
   name: myboot
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: myboot
-      version: v1
   template:
     metadata:
       labels:
         app: myboot
-        version: v1
     spec:
       containers:
       - name: myboot

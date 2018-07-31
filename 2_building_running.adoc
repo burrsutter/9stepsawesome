@@ -48,6 +48,8 @@ Your objects should be created via a file that can be checked into source contro
 ----
 $ kubectl create -f kubefiles/myspace-namespace.yml # <1>
 $ kubectl config set-context minikube --namespace=myspace # <2>
+# or if you are using minishift and oc, there is a shortcut
+$ oc project myspace
 ----
 <1> Using the yaml allows you to place this file in a source repository
 <2> The setting of the context means you have to type -n myspace less often.  Also, when using Minishift,
@@ -58,9 +60,12 @@ $ kubectl config set-context minikube --namespace=myspace # <2>
 include::kubefiles/myspace-namespace.yml[]
 ----
 
-TODO: You can confirm your context with
+You can confirm your context with
 ----
-$ kubectl config current-context
+$ kubectl config view --minify --template '{{ index .contexts 0 "context" "namespace" }}'
+# of if you are using minishift and oc then there is a handy shortcut
+$ oc project
+
 ----
 
 == Code
@@ -126,7 +131,7 @@ Get the nodePort
 $ kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}"
 ----
 
-Curl that nodePort
+Curl that url + nodePort
 ----
 $ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
 ----
@@ -152,12 +157,12 @@ $ kubectl replace -f kubefiles/myboot-deployment.yml
 
 Or use the kubectl scale command
 ----
-$ kubectl scale --replicas=2 deployment/myboot
+$ kubectl scale --replicas=3 deployment/myboot
 ----
 
 Or you might patch it
 ----
-$ kubectl patch deployment/myboot -p '{"spec":{"replicas":2}}'
+$ kubectl patch deployment/myboot -p '{"spec":{"replicas":3}}'
 ----
 
 Or use the kubectl edit command which essentially gives you "vi" for editing the deployment yaml
@@ -165,6 +170,11 @@ Or use the kubectl edit command which essentially gives you "vi" for editing the
 $ kubectl edit deployment/myboot
 /replicas
 esc-w-q
+----
+
+You can then use "kubectl get pods" to see the pods that have been created
+----
+$ kubectl get pods
 ----
 
 == Update
@@ -205,12 +215,87 @@ curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
 curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
 curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
 Bonjour from Spring Boot! 0 on myboot-757658fc4c-qnvqx
-Bonjour from Spring Boot! 1 on myboot-757658fc4c-qnvqx
+Bonjour from Spring Boot! 1 on myboot-5955897c9b-zthj9
 ----
 
-We will be working on that when we address Liveness and Readiness probes later...
+We will be working on those errors when we address Liveness and Readiness probes later...
 
+For now, undo the update, going back to v1
 
+----
+$ kubectl rollout undo deployment/myboot 
+----
 
+Scale to 1
+----
+$ kubectl scale --replicas=1 deployment/myboot
+----
 
+Hit the sysresources endpoint
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+ Memory: 1324 Cores: 2
+----
+
+Note: you can use echo to see what this URL really looks like on your machine
+----
+$ echo $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+192.168.99.105:30479/sysresources
+----
+
+The results of the "sysresources" call should be about 1/4 memory and all the cores that were configured for the VM.  You can double check this with the following command:
+
+----
+$ minikube config view
+- cpus: 2
+- memory: 6144
+- vm-driver: virtualbox
+----
+
+Now, let's apply resource contraints via Kubernetes & deployment yaml.  Look at myboot-deployment-resources.yml
+
+----
+$ kubectl replace -f kubefiles/myboot-deployment-resources.yml 
+----
+
+Curl sysresources again
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+Memory: 1324 Cores: 2
+----
+
+In another terminal window, watch the pods
+----
+$ kubectl get pods -w
+----
+
+and now curl the consume endpoint
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
+----
+
+and you should see a OOMKilled
+----
+$ kubectl get pods -w
+NAME                      READY     STATUS    RESTARTS   AGE
+myboot-68d666dd8d-m9m5r   1/1       Running   0          1m
+myboot-68d666dd8d-m9m5r   0/1       OOMKilled   0         2m
+myboot-68d666dd8d-m9m5r   1/1       Running   1         2m
+----
+
+And you can also see the OOMKilled with the kubectl describe command
+----
+$ kubectl describe pod -l app=myboot
+...
+    Last State:     Terminated
+      Reason:       OOMKilled
+      Exit Code:    137
+      Started:      Tue, 31 Jul 2018 13:42:18 -0400
+      Finished:     Tue, 31 Jul 2018 13:44:24 -0400
+    Ready:          True
+    Restart Count:  1
+...
+----
+
+Mystery to be solved in future steps!
 
