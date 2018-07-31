@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mynode
+  labels:
+    app: mynode
+spec:
+  ports:
+  - name: http
+    port: 8000
+  selector:
+    app: mynode
+  type: LoadBalancer

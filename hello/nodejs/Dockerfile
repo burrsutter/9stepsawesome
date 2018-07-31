@@ -1,9 +1,11 @@
-FROM openshift3/nodejs-010-rhel7
+FROM node:8
 
 MAINTAINER Burr Sutter "burrsutter@gmail.com"
 
 EXPOSE 8000
 
-COPY . /opt/app-root/src
+WORKDIR /usr/src/
 
-CMD /bin/bash -c 'node hello-http.js'
+COPY hello-http.js /usr/src
+
+CMD ["/bin/bash", "-c", "node hello-http.js" ]
