@@ -1,0 +1,2 @@
+= Step 8: Deployment Techniques: Blue/Green, Canary
+Burr Sutter <burrsuter@gmail.com>

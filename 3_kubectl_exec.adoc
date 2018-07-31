@@ -1,0 +1,9 @@
+= Step 3: exec Magic
+Burr Sutter <burrsuter@gmail.com>
+
+ifndef::codedir[:codedir: kubefiles]
+ifndef::imagesdir[:imagesdir: images]
+
+== Linux FTW
+
+
