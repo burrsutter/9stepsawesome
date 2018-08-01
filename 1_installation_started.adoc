@@ -8,6 +8,11 @@ Create and change into a directory where you would like to work.
 
 == Setup
 
+OpenShift is Red Hat's distribution of Kubernetes 
+
+minikube and minishift are essentially equivalent and will be used for the demonstrations/examples below.
+
+
 === Prerequisites
 * Docker for Mac/Windows
 * git
