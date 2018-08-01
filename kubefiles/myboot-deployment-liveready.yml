@@ -17,6 +17,19 @@ spec:
       containers:
       - name: myboot
         image: 9stepsawesome/myboot:v1         
+        livenessProbe:
+          httpGet:
+              port: http
+              path: /
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2          
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 3
         ports:
           - containerPort: 8080
 

@@ -1,4 +1,117 @@
 = Step 5: Configuration
 Burr Sutter <burrsuter@gmail.com>
 
+== Externalize Configuration
+
+*_An app’s config is everything that is likely to vary between deploys (staging, production, developer environments, etc)._*
+
+https://12factor.net/config[12 Factor Apps]
+
+== Environment Variables
+
+MyRESTController.java includes a small chunk of code that looks to the environment
+
+[source,java]
+----
+   @RequestMapping("/configure")
+   public String configure() {
+        String databaseConn = environment.getProperty("DBCONN","Default");
+        String msgBroker = environment.getProperty("MSGBROKER","Default");
+        String hello = environment.getProperty("GREETING","Default");
+        String love = environment.getProperty("LOVE","Default");
+        return "Configuration: \n"
+            + "databaseConn=" + databaseConn + "\n"
+            + "msgBroker=" + msgBroker + "\n"
+            + "hello=" + hello + "\n"
+            + "love=" + love + "\n";
+   }
+----
+
+Environment variables can be manipulated at the Deployment level. Changes cause pod redeployment.
+
+----
+$ kubectl get pods -w
+----
+
+Then set the env var at the Deployment 
+----
+$ kubectl set env deployment/myboot GREETING="namaste"
+----
+
+and you should notice the associated pods being "reborn"
+
+----
+myboot-d79789574-8qpzb   0/1       Pending   0         0s
+myboot-578ff6dfc7-8krbb   1/1       Terminating   0         40s
+myboot-d79789574-8qpzb   0/1       Pending   0         0s
+myboot-d79789574-8qpzb   0/1       ContainerCreating   0         0s
+myboot-d79789574-8qpzb   1/1       Running   0         1s
+----
+
+and you can all the /configure endpoint
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+Configuration: 
+databaseConn=Default
+msgBroker=Default
+hello=namaste
+love=Default
+----
+
+Set the other variables
+
+----
+$ kubectl set env deployment/myboot LOVE="Aloha"
+$ kubectl set env deployment/myboot DBCONN="jdbc:sqlserver://45.91.12.123:1443;user=MyUserName;password=*****;"
+----
+
+You can see the set variables via the -o yaml trick
+----
+$ kubectl get deployment/myboot -o yaml, or -o json
+...
+    spec:
+      containers:
+      - env:
+        - name: hello
+          value: namaste
+        - name: GREETING
+          value: namaste
+        - name: LOVE
+          value: Aloha
+        - name: DBCONN
+          value: jdbc:sqlserver://45.91.12.123:1443;user=MyUserName;password=*****;
+        image: 9stepsawesome/myboot:v1
+...
+----
+
+as well as via the describe command
+
+----
+$ kubectl describe deployment/myboot
+...
+    Requests:
+      cpu:     250m
+      memory:  300Mi
+    Environment:
+      hello:     namaste
+      GREETING:  namaste
+      LOVE:      Aloha
+      DBCONN:    jdbc:sqlserver://45.91.12.123:1443;user=MyUserName;password=*****;
+    Mounts:      <none>
+  Volumes:       <none>
+...
+----
+
+And you can unset the env vars with a "-"
+----
+$ kubectl set env deployment/myboot LOVE-
+$ kubectl set env deployment/myboot DBCONN-
+$ kubectl set env deployment/myboot GREETING-
+----
+
+Note: You if you are quick on your curl command, you might notice that you receive some errors while the pod is being restarted.  
+The problem is replicas == 1 (there is a single pod/instance of your app) and you have not yet mastered the live/ready probe (coming in step 7).
+
+== ConfigMaps
+
 

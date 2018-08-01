@@ -5,9 +5,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 public class MyRESTController {
+    @Autowired
+    private Environment environment;
+
    final String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
    private int count = 0; // simple counter to see lifecycle
 
@@ -30,7 +35,7 @@ public class MyRESTController {
    @RequestMapping("/consume") 
    public String consumeSome() {
         System.out.println("/consume " + hostname);
-        
+
         Runtime rt = Runtime.getRuntime();
         StringBuilder sb = new StringBuilder();
         long maxMemory = rt.maxMemory();
@@ -50,6 +55,19 @@ public class MyRESTController {
    public ResponseEntity<String> health() {
         return ResponseEntity.status(HttpStatus.OK)
             .body("I am fine, thank you\n");
+   }
+
+   @RequestMapping("/configure")
+   public String configure() {
+        String databaseConn = environment.getProperty("DBCONN","Default");
+        String msgBroker = environment.getProperty("MSGBROKER","Default");
+        String hello = environment.getProperty("GREETING","Default");
+        String love = environment.getProperty("LOVE","Default");
+        return "Configuration for : " + hostname + "\n" 
+            + "databaseConn=" + databaseConn + "\n"
+            + "msgBroker=" + msgBroker + "\n"
+            + "hello=" + hello + "\n"
+            + "love=" + love + "\n";
    }
 
    public static String humanReadableByteCount(long bytes, boolean si) {

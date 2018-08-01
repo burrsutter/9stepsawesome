@@ -218,7 +218,7 @@ Bonjour from Spring Boot! 0 on myboot-757658fc4c-qnvqx
 Bonjour from Spring Boot! 1 on myboot-5955897c9b-zthj9
 ----
 
-We will be working on those errors when we address Liveness and Readiness probes later...
+We will be working on those errors when we address Liveness and Readiness probes in Step 7
 
 For now, undo the update, going back to v1
 

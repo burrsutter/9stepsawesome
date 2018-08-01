@@ -297,10 +297,8 @@ $ minikube stop
 # go about your business, come back later and
 $ minikube start
 ----
-http://www.screencast.com/t/6CNF5WwFL
 
-
-and if you need to clean up the VM
+and if you need to clean up the VM entirely
 ----
 $ minikube delete
 ----
