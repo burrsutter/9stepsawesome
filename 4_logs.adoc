@@ -1,6 +1,8 @@
 = Step 4: Logs
 Burr Sutter <burrsuter@gmail.com>
 
+ifndef::imagesdir[:imagesdir: images]
+
 There are various "production-ready" ways to do log gathering and viewing across a Kubernetes/OpenShift cluster. Many folks like some flavor of ELK or EFK. 
 
 The focus here is on stuff a developer needs to get access to do help understand the behavior of their application running inside of a pod.
@@ -52,7 +54,7 @@ done
 and stern will let you see the logs across the 3 different pods.  
 
 .stern output
-image::images/stern_output.png[Stern]
+image::stern_output.png[Stern]
 
 This is more exciting when you might have 3 different microservices by the names are similiar enough to use stern.
 

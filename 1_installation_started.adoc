@@ -81,6 +81,10 @@ minikube start
 There is nothing in this series of exercises that is CPU intensive.
 <2> Minishift is secured by default, this creates an cluster "admin" user
 
+.VirtualBox UI
+image::virtualbox_UI.png[VirtualBox]
+
+
 === Check status, IP & Dashboard/Console
 ----
 $ minikube config view
@@ -97,9 +101,13 @@ $ minikube dashboard --url
 http://192.168.99.103:30000
 $ minikube dashboard
 ----
-https://screencast.com/t/inpzd7mB
-or
-https://screencast.com/t/My5oZLiC7d
+
+.minikube dashboard
+image::minikube_dashboard.png[Minikube Dashboard]
+
+.minishift dashboard
+image::openshift_dashboard.png[Minishift Dashboard]
+
 
 
 === Check your kubectl CLI
