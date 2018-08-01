@@ -82,7 +82,7 @@ There is nothing in this series of exercises that is CPU intensive.
 <2> Minishift is secured by default, this creates an cluster "admin" user
 
 .VirtualBox UI
-image::virtualbox_UI.png[VirtualBox]
+image::virtualbox_ui.png[VirtualBox]
 
 
 === Check status, IP & Dashboard/Console
