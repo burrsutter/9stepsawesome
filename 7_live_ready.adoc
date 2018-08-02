@@ -1,2 +1,146 @@
 = Step 7: Live and Ready
 Burr Sutter <burrsuter@gmail.com>
+
+If you remember that both our rolling update (seen in Step 2) and our setting/unsetting env variables (seen in Step 5) caused the rods to "restart".  The problem is that clients (polling curl) also received error messages during this "downtime".  
+
+Now, let's have a zero-downtime rolling update/deployment.  
+
+Add the Liveness and Readiness probe to your deployment yaml.  
+
+[source,yaml]
+----
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: myboot
+  name: myboot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myboot
+  template:
+    metadata:
+      labels:
+        app: myboot
+    spec:
+      containers:
+      - name: myboot
+        image: 9stepsawesome/myboot:v1
+        ports:
+          - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: my-config
+        resources:
+          requests: 
+            memory: "300Mi" 
+            cpu: "250m" # 1/4 core
+          limits:
+            memory: "400Mi"
+            cpu: "1000m" # 1 core
+        livenessProbe:
+          httpGet:
+              port: http
+              path: /
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2          
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 3
+----
+
+and replace the current Deployment in the current environment
+
+----
+$ kubectl replace -f kubefiles/myboot-deployment-liveready.yml
+----
+
+and do a describe to see the new probes in place.
+
+----
+$ kubectl describe deployment/myboot
+...
+   myboot:
+    Image:      9stepsawesome/myboot:v1
+    Port:       8080/TCP
+    Host Port:  0/TCP
+    Limits:
+      cpu:     1
+      memory:  400Mi
+    Requests:
+      cpu:      250m
+      memory:   300Mi
+    Liveness:   http-get http://:http/ delay=10s timeout=2s period=5s #success=1 #failure=3
+    Readiness:  http-get http://:8080/health delay=10s timeout=1s period=3s #success=1 #failure=3
+    Environment Variables from:
+      my-config   ConfigMap  Optional: false
+...
+----
+
+now try the rolling update with the poller hitting the endpoints
+
+start the poller in terminal 1
+
+[source,bash]
+----
+#!/bin/bash
+
+while true
+do 
+  curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+  sleep .5;
+done
+----
+
+scale up to 2 replicas
+
+----
+$ kubectl scale deployment/myboot --replicas=2
+----
+
+Make sure you have v2 of the Spring Boot image ready - Bonjour
+
+----
+$ docker build -t 9stepsawesome/myboot:v2 .
+----
+
+now rollout the update
+
+----
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
+----
+
+and there will no errors
+
+----
+Hello from Spring Boot! 115 on myboot-859cbbfb98-lnc8q
+Hello from Spring Boot! 116 on myboot-859cbbfb98-lnc8q
+Hello from Spring Boot! 117 on myboot-859cbbfb98-lnc8q
+Bonjour from Spring Boot! 0 on myboot-5b686c586f-ccv5r
+Bonjour from Spring Boot! 1 on myboot-5b686c586f-ccv5r
+----
+
+Rolling back is also as clean
+
+----
+$ kubectl rollout undo deployment/myboot 
+----
+
+----
+Bonjour from Spring Boot! 30 on myboot-5b686c586f-ccv5r
+Bonjour from Spring Boot! 31 on myboot-5b686c586f-ccv5r
+Bonjour from Spring Boot! 32 on myboot-5b686c586f-ccv5r
+Hello from Spring Boot! 0 on myboot-859cbbfb98-4rvl8
+Hello from Spring Boot! 1 on myboot-859cbbfb98-4rvl8
+----
+
+Once you understand the basics then you can try the advanced demonstration.  Where the a stateful shopping cart is preserved across a rolling update based on leveraging the readiness probe.
+
+https://github.com/redhat-developer-demos/popular-movie-store
+
