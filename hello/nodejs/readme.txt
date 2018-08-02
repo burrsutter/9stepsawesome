@@ -1,4 +1,10 @@
 Test it plain
+node -v
+v8.11.3
+npm -v
+v8.11.3
+
+
 npm start
 curl localhost:8000
 
@@ -18,3 +24,5 @@ docker stop 08efa083696b
 
 docker rm 08efa083696b
 
+deploy it into minikube/minishift
+kubectl create -f kubefiles/mynode-deployment.yml
