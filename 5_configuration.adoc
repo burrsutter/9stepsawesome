@@ -114,4 +114,83 @@ The problem is replicas == 1 (there is a single pod/instance of your app) and yo
 
 == ConfigMaps
 
+Create a ConfigMap from a directory called config
 
+----
+$ kubectl create cm my-config --from-env-file=config/some.properties
+----
+
+----
+$ kubectl get cm
+NAME        DATA      AGE
+my-config   2         6s
+----
+
+----
+$ kubectl describe cm my-config
+Name:         my-config
+Namespace:    myspace
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+GREETING:
+----
+Hujumbo
+LOVE:
+----
+Amour
+Events:  <none>
+----
+
+----
+$ kubectl get cm my-config -o yaml
+apiVersion: v1
+data:
+  GREETING: Hujumbo
+  LOVE: Amour
+kind: ConfigMap
+metadata:
+  creationTimestamp: 2018-08-02T03:15:01Z
+  name: my-config
+  namespace: myspace
+  resourceVersion: "168479"
+  selfLink: /api/v1/namespaces/myspace/configmaps/my-config
+  uid: 3e52c2a7-9602-11e8-968e-08002783251f
+----
+
+Change the deployment to look for its env from the configmap
+----
+$ kubectl replace -f kubefiles/myboot-deployment-configuration.yaml
+----
+
+Replacement of the Deployment should cause the pods to respawn, if not or just for good measure you can delete them and they will get recreated
+----
+$ kubectl delete pod -l app=myboot
+----
+
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+Configuration for : myboot-694954fc6d-fzzf4
+databaseConn=Default
+msgBroker=Default
+hello=Hujumbo
+love=Amour
+----
+
+and switch to the other properties file by recreating the CM
+----
+$ kubectl delete cm my-config
+$ kubectl create cm my-config --from-env-file=config/other.properties
+$ kubectl delete pod -l app=myboot
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+Configuration for : myboot-694954fc6d-nzdvx
+databaseConn=jdbc:sqlserver://123.123.123.123:1443;user=MyUserName;password=*****;
+msgBroker=tcp://localhost:61616?jms.useAsyncSend=true
+hello=Default
+love=Default
+----
+
+There are a lot more ways to have fun with ConfigMaps, the core documentation has you manipualte a Pod specification instead of a Deployment but the results are basically the same
+https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap

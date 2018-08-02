@@ -16,9 +16,12 @@ spec:
     spec:
       containers:
       - name: myboot
-        image: 9stepsawesome/myboot:v1     
+        image: 9stepsawesome/myboot:v1  
         ports:
           - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: my-config
         resources:
           requests: 
             memory: "300Mi" 
