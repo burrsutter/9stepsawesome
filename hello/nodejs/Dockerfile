@@ -7,5 +7,6 @@ EXPOSE 8000
 WORKDIR /usr/src/
 
 COPY hello-http.js /usr/src
+COPY package.json /usr/src
 
-CMD ["/bin/bash", "-c", "node hello-http.js" ]
+CMD ["/bin/bash", "-c", "npm start" ]

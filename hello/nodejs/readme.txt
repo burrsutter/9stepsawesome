@@ -1,8 +1,10 @@
+Test it plain
+npm start
+curl localhost:8000
 
-Assumes use of CDK Minishift
-https://developers.redhat.com/products/cdk/download/
-
+Test it in Docker
 minishift docker-env
+minikube docker-env
 
 docker build -t 9stepsawesome/mynode:v1 . 
 
@@ -11,12 +13,6 @@ docker images | grep mynode
 docker run -d -p 8000:8000 9stepsawesome/mynode:v1
 
 docker ps | grep mynode
-
-docker exec -it 08efa083696b /bin/bash
-
-cat /etc/system-release
-
-exit
 
 docker stop 08efa083696b
 
