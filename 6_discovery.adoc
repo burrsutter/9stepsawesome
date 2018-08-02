@@ -1,9 +1,74 @@
 = Step 6: Service Discovery & Load-balancing
 Burr Sutter <burrsuter@gmail.com>
 
-Now we need two endpoints to experiment with.  We already have the Spring Boot endpoint, let's add in Node.js.
+Now we need two endpoints to experiment with as one needs to another another.  In this case, our Spring Boot app will be calling the Node.js app.
+
+And let's also experiment with two namespaces to make it a wee bit more interesting.
 
 ----
-$ cd hello/nodejs
-$ 
+$ kubectl create -f kubefiles/yourspace-namespace.yml
 ----
+
+and then load a Node.js endpoint into that new namespace
+----
+$ cd hello/nodejs
+# test it locally
+$ npm start
+$ curl localhost:8080
+$ ctrl-c
+# build the docker image and test it
+$ docker build -t 9stepsawesome/mynode:v1 .
+$ docker run -it -p 8000:8000 9stepsawesome/mynode:v1
+$ curl $(minikube ip):8000
+$ ctrl-c
+# deploy it into minikube/minishift
+$ cd ../.. # to the main 9stepsawesome directory
+$ kubectl create -f kubefiles/mynode-deployment.yml -n yourspace
+$ kubectl create -f kubefiles/mynode-service.yml -n yourspace
+$ kubectl get all -n yourspace
+----
+
+Now invoke the "callinganother" endpoint on the myboot service
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/callinganother
+Hello from Node.js! 0 on mynode-68b9b9ffcc-wspxf
+----
+
+The magic is simply knowing the correct URL
+[source,java]
+----
+    // <servicename>.<namespace>.svc.cluster.local
+    String url = "http://mynode.yourspace.svc.cluster.local:8000/";
+----
+
+If you are within the same namespace then you can simply use
+
+----
+    String url = "http://mynode:8000/";
+----
+
+2 replicas of mynode
+----
+$ kubectl scale deployment/mynode --replicas=2 -n yourspace
+----
+
+and now invoke the "callinganother" again and again
+
+[source,bash]
+----
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/callinganother
+Hello from Node.js! 4 on mynode-68b9b9ffcc-4kkg5
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/callinganother
+Hello from Node.js! 1 on mynode-68b9b9ffcc-wspxf
+----
+
+If you wish to update the Node.js endpoint code, just remember the -n yourspace parameter
+
+----
+$ docker build -t 9stepsawesome/mynode:v1 .
+$ kubectl delete pod -l app=mynode -n yourspace
+----
+
+The delete will cause another deployment based on the new image.
+
+

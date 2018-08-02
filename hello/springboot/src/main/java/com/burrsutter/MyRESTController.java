@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class MyRESTController {
@@ -15,6 +16,8 @@ public class MyRESTController {
 
    final String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
    private int count = 0; // simple counter to see lifecycle
+
+   RestTemplate restTemplate = new RestTemplate();
 
    @RequestMapping("/")
    public String sayHello() {
@@ -68,6 +71,21 @@ public class MyRESTController {
             + "msgBroker=" + msgBroker + "\n"
             + "hello=" + hello + "\n"
             + "love=" + love + "\n";
+   }
+
+   @RequestMapping("/callinganother")
+   public String callinganother() {
+        
+        // <servicename>.<namespace>.svc.cluster.local
+        String url = "http://mynode.yourspace.svc.cluster.local:8000/";
+
+        ResponseEntity<String> response
+        = restTemplate.getForEntity(url, String.class);
+    
+        String responseBody =  response.getBody();
+        System.out.println(responseBody);
+
+        return responseBody;
    }
 
    public static String humanReadableByteCount(long bytes, boolean si) {
