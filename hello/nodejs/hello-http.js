@@ -3,7 +3,8 @@ var cnt = 0;
 
 http.createServer(function (req, res) {
     var now = new Date();
-    res.end('Hello from Node.jsX! ' + cnt++ + ' on ' + process.env.HOSTNAME  + '\n');
+    res.end('Bonjour from Node.js! ' + cnt++ + ' on ' + process.env.HOSTNAME  + '\n');
     
 }).listen(8000, '0.0.0.0');
 console.log('Server running at http://:8000/');
+

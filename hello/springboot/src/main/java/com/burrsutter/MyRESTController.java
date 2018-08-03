@@ -22,7 +22,7 @@ public class MyRESTController {
    @RequestMapping("/")
    public String sayHello() {
        System.out.println("/ " + hostname);
-       return "Hello from Spring Boot! " + count++ + " on " + hostname + "\n";
+       return "Aloha from Spring Boot! " + count++ + " on " + hostname + "\n";
    }
 
    @RequestMapping("/sysresources") 
@@ -54,10 +54,14 @@ public class MyRESTController {
         return msg + "\n";
    }
 
-   @RequestMapping(method = RequestMethod.GET, value = "/health")
-   public ResponseEntity<String> health() {
-        return ResponseEntity.status(HttpStatus.OK)
-            .body("I am fine, thank you\n");
+   @RequestMapping(method = RequestMethod.GET, value = "/health")   
+   public ResponseEntity<String> health() {               
+        // if (count++ < 5) {
+        //    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Bad");
+        // } else {    
+            return ResponseEntity.status(HttpStatus.OK)
+                .body("I am fine, thank you\n");
+        // }
    }
 
    @RequestMapping("/configure")

@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mynodenew
+  name: mynodenew
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mynodenew
+  template:
+    metadata:
+      labels:
+        app: mynodenew
+    spec:
+      containers:
+      - name: mynodenew
+        image: 9stepsawesome/mynode:v2     
+        ports:
+          - containerPort: 8000
+

@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mybootcanary
+  name: mybootcanary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mybootcanary
+  template:
+    metadata:
+      labels:
+        app: mybootcanary
+    spec:
+      containers:
+      - name: mybootcanary
+        image: 9stepsawesome/myboot:v3
+        ports:
+          - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: my-config
+        resources:
+          requests: 
+            memory: "300Mi" 
+            cpu: "250m" # 1/4 core
+          limits:
+            memory: "400Mi"
+            cpu: "1000m" # 1 core
+        livenessProbe:
+          httpGet:
+              port: http
+              path: /
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 2          
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 3
+

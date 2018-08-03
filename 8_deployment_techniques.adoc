@@ -1,2 +1,350 @@
 = Step 8: Deployment Techniques: Blue/Green, Canary
 Burr Sutter <burrsuter@gmail.com>
+
+== Blue/Green
+
+https://martinfowler.com/bliki/BlueGreenDeployment.html[Description of Blue/Green Deployment]
+
+Switching over to yourspace as the default since we will be manipulating the Node (mynode) app.
+
+----
+$ kubectl config set-context minikube --namespace=yourspace
+$ kubectl get pods
+NAME                      READY     STATUS    RESTARTS   AGE
+mynode-68b9b9ffcc-4kkg5   1/1       Running   0          15m
+mynode-68b9b9ffcc-wspxf   1/1       Running   0          18m
+----
+
+Two pods of mynode based on the example in Step 6 but if you need to get your replicas sorted try
+----
+$ kubectl scale deployment/mynode --replicas=2 -n yourspace
+----
+and -n yourspace should not be necessary based on the set-context earlier
+
+
+Poll mynode
+
+[source,bash]
+----
+#!/bin/bash
+
+while true
+do 
+  curl $(minikube ip):$(kubectl get service/mynode -o jsonpath="{.spec.ports[*].nodePort}")
+  sleep .5;
+done
+----
+
+----
+Hello from Node.js! 4 on mynode-68b9b9ffcc-jv4fd
+Hello from Node.js! 2 on mynode-68b9b9ffcc-vq9k5
+Hello from Node.js! 5 on mynode-68b9b9ffcc-jv4fd
+Hello from Node.js! 6 on mynode-68b9b9ffcc-jv4fd
+----
+
+Let's call this version BLUE (the color does not matter) and we wish to deploy GREEN
+
+Modify hello-http.js to say Bonjour
+----
+$ cd hello/nodejs
+$ vi hello-http.js
+  res.end('Bonjour from Node.js! ' + cnt++ + ' on ' + process.env.HOSTNAME  + '\n');
+esc-w-q  
+----
+
+and build a new Docker image
+
+----
+$ docker build -t 9stepsawesome/mynode:v2 .
+Sending build context to Docker daemon   5.12kB
+Step 1/7 : FROM node:8
+ ---> ed145ef978c4
+Step 2/7 : MAINTAINER Burr Sutter "burrsutter@gmail.com"
+ ---> Using cache
+ ---> 16e077cca62b
+Step 3/7 : EXPOSE 8000
+ ---> Using cache
+ ---> 53d9c47ace0d
+Step 4/7 : WORKDIR /usr/src/
+ ---> Using cache
+ ---> 5e74464b9671
+Step 5/7 : COPY hello-http.js /usr/src
+ ---> 308423270e08
+Step 6/7 : COPY package.json /usr/src
+ ---> d13548c1332b
+Step 7/7 : CMD ["/bin/bash", "-c", "npm start" ]
+ ---> Running in cbf11794596f
+Removing intermediate container cbf11794596f
+ ---> 73011d539094
+Successfully built 73011d539094
+Successfully tagged 9stepsawesome/mynode:v2
+----
+
+and check out the image
+
+----
+$ docker images | grep 9steps
+9stepsawesome/mynode                       v2                  73011d539094        6 seconds ago       673MB
+9stepsawesome/myboot                       v2                  d0c16bffe5f0        38 minutes ago      638MB
+9stepsawesome/myboot                       v1                  f66e4bb1f1cf        About an hour ago   638MB
+9stepsawesome/mynode                       v1                  26d9e4e9f3b1        2 hours ago         673MB
+----
+
+Run the image to see if you built it correctly
+----
+$ docker run -it -p 8000:8000 9stepsawesome/mynode:v2
+$ curl $(minikube ip):8000
+Bonjour from Node.js! 0 on 001b160eaa82
+----
+
+Now, there is a 2nd deployment yaml for mynodeNew
+----
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: mynodenew
+  name: mynodenew
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mynodenew
+  template:
+    metadata:
+      labels:
+        app: mynodenew
+    spec:
+      containers:
+      - name: mynodenew
+        image: 9stepsawesome/mynode:v2     
+        ports:
+          - containerPort: 8000
+----
+
+----
+$ kubectl create -f kubefiles/mynode-deployment-new.yml
+----
+
+You now have the new pod as well as the old ones
+
+----
+$ kubectl get pods
+NAME                         READY     STATUS    RESTARTS   AGE
+mynode-68b9b9ffcc-jv4fd      1/1       Running   0          23m
+mynode-68b9b9ffcc-vq9k5      1/1       Running   0          23m
+mynodenew-5fc946f544-q9ch2   1/1       Running   0          25s
+----
+
+Yet your client/user is still seeing the old one only
+
+----
+$  curl $(minikube ip):$(kubectl get service/mynode -o jsonpath="{.spec.ports[*].nodePort}")
+Hello from Node.js! 11 on mynode-68b9b9ffcc-jv4fd
+----
+
+You can tell the new pod carries the new code by with an exec
+
+----
+$ kubectl exec -it mynodenew-5fc946f544-q9ch2 /bin/bash
+root@mynodenew-5fc946f544-q9ch2:/usr/src# curl localhost:8000
+Bonjour from Node.js! 0 on mynodenew-5fc946f544-q9ch2
+$ exit
+----
+
+Now update the single Service to point to the new pod and go GREEN
+
+----
+$ kubectl patch svc/mynode -p '{"spec":{"selector":{"app":"mynodenew"}}}'
+----
+
+You have just flipped all users to Bonjour (GREEN) and if you wish to flip back
+
+----
+$ kubectl patch svc/mynode -p '{"spec":{"selector":{"app":"mynode"}}}'
+----
+
+Note: Our deployment yaml did not have a live & ready probe, things worked out OK here because we wanted until long after mynodenew was up and running before flipping the service selector.
+
+== Built-In Canary
+
+https://martinfowler.com/bliki/CanaryRelease.html[Description of Canary]
+
+There are at least two types of deployments that some folks consider "canary deployments" in Kubernetes.  The first is simply the rolling update strategy with the health check (liveness probe), if the liveness check fails, it knows to undo the deployment.
+
+Switching back to focusing on myboot and myspace
+----
+$ kubectl config set-context minikube --namespace=mypace
+$ kubectl get pods
+kubectl get pods
+NAME                      READY     STATUS        RESTARTS   AGE
+myboot-859cbbfb98-4rvl8   1/1       Running       0          55m
+myboot-859cbbfb98-rwgp5   1/1       Running       0          55m
+----
+
+Make sure myboot has 2 replicas
+----
+$ kubectl scale deployment/myboot --replicas=2
+----
+
+and let's attempt to put some bad code into production
+
+Go into hello/springboot/MyRESTController.java and add a System.exit(1) into the /health logic
+----
+   @RequestMapping(method = RequestMethod.GET, value = "/health")
+   public ResponseEntity<String> health() {
+        System.exit(1);
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("I am fine, thank you\n");
+   }
+----
+
+Obviously this sort of thing would never pass through your robust code reviews and automated QA but let's assume it does.
+
+Build the code
+----
+$ mvn clean package
+----
+
+Build the docker image for v3
+----
+$ docker build -t 9stepsawesome/myboot:v3 .
+----
+
+Terminal 1: Start a poller
+----
+$ ./poll_myboot.sh
+----
+
+Terminal 2: Watch pods
+----
+$ kubectl get pods -w
+----
+
+Terminal 3: Watch events
+----
+$ kubectl get events -w
+----
+
+Terminal 4: rollout the v3 update
+----
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v3
+----
+
+and watch the fireworks
+
+
+----
+$ kubectl get pods -w
+myboot-5d7fb559dd-qh6fl   0/1       Error     1         11m
+myboot-859cbbfb98-rwgp5   0/1       Terminating   0         6h
+myboot-859cbbfb98-rwgp5   0/1       Terminating   0         6h
+myboot-5d7fb559dd-qh6fl   0/1       CrashLoopBackOff   1         11m
+myboot-859cbbfb98-rwgp5   0/1       Terminating   0         6h
+----
+
+----
+$ kubectl get events -w
+2018-08-02 19:42:19 -0400 EDT   2018-08-02 19:42:16 -0400 EDT   2         myboot-5d7fb559dd-qh6fl.154735c94d1446ce   Pod       spec.containers{myboot}   Warning   BackOff   kubelet, minikube   Back-off restarting failed container
+----
+
+And yet your polling client, stays with the old code & old pod
+----
+Hello from Spring Boot! 133 on myboot-859cbbfb98-4rvl8
+Hello from Spring Boot! 134 on myboot-859cbbfb98-4rvl8
+----
+
+If you watch a while, the CrashLoopBackOff will continue and the restart count will increment.
+
+Now, go fix the MyRESTController and also change from Hello to Aloha
+
+No more System.exit()
+----
+   @RequestMapping(method = RequestMethod.GET, value = "/health")
+   public ResponseEntity<String> health() {        
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("I am fine, thank you\n");
+   }
+----
+and Aloha
+----
+   @RequestMapping(method = RequestMethod.GET, value = "/health")
+   public ResponseEntity<String> health() {        
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("I am fine, thank you\n");
+   }
+----
+
+Save
+
+----
+$ mvn clean package
+
+$ docker build -t 9stepsawesome/myboot:v3 
+----
+
+and now rollout the change to v3
+----
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v3
+----
+
+== Manual Canary with multiple Deployments
+
+Go back to v1
+----
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v1
+----
+
+Next, we will use a 2nd Deployment like we did with Blue/Green.  
+
+----
+$ kubectl create -f kubefiles/myboot-deployment-canary.yml
+----
+
+And you can see a new pod being bonjour
+----
+$ kubectl get pods
+----
+
+And this is the v3 one with Aloha
+----
+$ kubectl exec -it mybootcanary-6ddc5d8d48-ptdjv curl localhost:8080/
+----
+
+Now we add a label to both v1 and v3 Deployments PodTemplate, causing new pods to be born
+----
+$ kubectl patch deployment/myboot -p '{"spec":{"template":{"metadata":{"labels":{"newstuff":"withCanary"}}}}}'
+$ kubectl patch deployment/mybootcanary -p '{"spec":{"template":{"metadata":{"labels":{"newstuff":"withCanary"}}}}}'
+----
+
+Tweak the Service selector for this new label
+----
+$ kubectl patch service/myboot -p '{"spec":{"selector":{"newstuff":"withCanary","app": null}}}'
+----
+
+You should see approximately 30% Aloha mixed in with Hello
+----
+Hello from Spring Boot! 23 on myboot-d6c8464-ncpn8
+Hello from Spring Boot! 22 on myboot-d6c8464-qnxd8
+Aloha from Spring Boot! 83 on mybootcanary-74d99754f4-tx6pj
+Hello from Spring Boot! 24 on myboot-d6c8464-ncpn8
+----
+
+You can then manipulate the percentages via the replicas associated with each deployment
+20% Aloha (Canary)
+----
+$ kubectl scale deployment/myboot --replicas=4
+$ kubectl scale deployment/mybootcanary --replicas=1
+----
+
+The challenge with this model is that you have to have the right pod count to get the right mix. If you want a 1% canary, you need 99 of the non-canary pods.
+
+== Istio Cometh
+
+The concept of the Canary rollout gets a lot smarter and more interesting with Istio.  You also get the concept of dark launches which allows you to push a change into the production environment, send traffic to the new pod(s) yet no responses are actual sent back to the end-user/client.
+
+See https://bit.ly/istio-tutorial/[bit.ly/istio-tutorial]
+
+
+
+
