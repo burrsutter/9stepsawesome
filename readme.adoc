@@ -1,0 +1,19 @@
+
+
+include::1_installation_started.adoc[Step 1: Installation & Getting Started]
+
+include::2_building_running.adoc[Step 2: Building Images & Running Containers]
+
+include::3_kubectl_exec.adoc[Step 3: exec Magic]
+
+include::4_logs.adoc[Step 4: Logs]
+
+include::5_configuration.adoc[Step 5: Configuration]
+
+include::6_discovery.adoc[Step 6: Service Discovery & Load-balancing]
+
+include::7_live_ready.adoc[Step 7: Live and Ready]
+
+include::8_deployment_techniques.adoc[Step 8: Deployment Techniques: Blue/Green, Canary]
+
+include::9_debugging.adoc[Step 9: Debugging]

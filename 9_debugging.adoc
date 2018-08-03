@@ -1,2 +1,16 @@
 = Step 9: Debugging
 Burr Sutter <burrsuter@gmail.com>
+
+== Java
+mvn fabric8:debug
+
+https://hub.docker.com/r/fabric8/java-jboss-openjdk8-jdk/
+
+https://maven.fabric8.io/#fabric8:debug
+
+https://code.visualstudio.com/docs/java/java-kubernetes
+
+https://code.visualstudio.com/blogs/2017/09/28/java-debug
+
+== Node.js
+https://developers.redhat.com/blog/2018/05/15/debug-your-node-js-application-on-openshift-with-chrome-devtools/

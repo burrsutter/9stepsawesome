@@ -26,10 +26,12 @@ minikube and minishift are essentially equivalent and will be used for the demon
 Download & Install Kubernetes CLI
 [source,bash]
 ----
-curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.1/bin/darwin/amd64/kubectl 
-chmod +x kubectl
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.1/bin/darwin/amd64/kubectl 
+$ chmod +x kubectl
+# or
+brew install kubectl 
 ----
-Instructions for finding and downloading the a kubectl 
+Other instructions for finding and downloading the a kubectl 
 https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 
 Download & Install Minikube Cluster
@@ -40,7 +42,7 @@ $ chmod +x minikube
 ----
 More Minikube releases https://github.com/kubernetes/minikube/releases
 
-or
+OR
 
 Download & Install Minishift Cluster
 [source,bash]
