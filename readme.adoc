@@ -1,4 +1,6 @@
+= Main Readme
 
+Details in the individuals steps
 
 include::1_installation_started.adoc[Step 1: Installation & Getting Started]
 
