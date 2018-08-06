@@ -1,12 +1,7 @@
 FROM node:8
-
-MAINTAINER Burr Sutter "burrsutter@gmail.com"
-
-EXPOSE 8000
-
-WORKDIR /usr/src/
-
-COPY hello-http.js /usr/src
-COPY package.json /usr/src
-
-CMD ["/bin/bash", "-c", "npm start" ]
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "app.js"]

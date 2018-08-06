@@ -5,7 +5,7 @@ npm -v
 v8.11.3
 
 
-npm start
+node app.js
 curl localhost:8000
 
 Test it in Docker

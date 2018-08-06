@@ -1,15 +1,26 @@
 {
-    "name": "hello",
-    "version": "1.0.0",
-    "description": "Hello microservice running on NodeJS",
-    "main": "hello-http.js",
-    "scripts": {
-      "start": "node hello-http.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/burrsutter/9stepsawesome/tree/master/hello/nodejs"
-    },
-        "author": "burrsutter@gmail.com",
-        "license": "Apache-2.0"
-}      
+  "name": "hello",
+  "version": "1.0.0",
+  "description": "Hello in Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "os": "^0.1.1",
+    "request": "^2.87.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/donschenck/hello.git"
+  },
+  "bugs": {
+    "url": "https://github.com/donschenck/hello/issues"
+  },
+  "homepage": "https://github.com/donschenck/hello#readme"
+}
