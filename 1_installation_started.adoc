@@ -37,7 +37,7 @@ https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 Download & Install Minikube Cluster
 [source,bash]
 ----
-$ curl -LO minikube https://storage.googleapis.com/minikube/releases/v0.28.1/minikube-darwin-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.1/minikube-darwin-amd64
 $ chmod +x minikube 
 ----
 More Minikube releases https://github.com/kubernetes/minikube/releases
@@ -47,7 +47,7 @@ OR
 Download & Install Minishift Cluster
 [source,bash]
 ----
-$ curl -LO curl -LO https://github.com/minishift/minishift/releases/download/v1.21.0/minishift-1.21.0-darwin-amd64.tgz
+$ curl -LO https://github.com/minishift/minishift/releases/download/v1.21.0/minishift-1.21.0-darwin-amd64.tgz
 $ tar -xvf minishift-1.21.0-darwin-amd64.tgz 
 ----
 More Minishift releases https://github.com/minishift/minishift/releases
