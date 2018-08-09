@@ -2,7 +2,6 @@
 Burr Sutter <burrsuter@gmail.com>
 
 == Java
-mvn fabric8:debug
 
 https://hub.docker.com/r/fabric8/java-jboss-openjdk8-jdk/
 
@@ -12,5 +11,93 @@ https://code.visualstudio.com/docs/java/java-kubernetes
 
 https://code.visualstudio.com/blogs/2017/09/28/java-debug
 
+For springboot
+
+Create a directory hello/springboot/src/main/fabric8
+
+Create a file called service.yml
+
+----
+apiVersion: v1
+kind: Service
+spec:
+  type: NodePort
+----
+
+mvn io.fabric8:fabric8-maven-plugin:3.5.40:setup
+
+mvn fabric8:debug
+
+----
+...
+[INFO] Using namespace: default
+Trying internal type for name:Service
+Trying internal type for name:Deployment
+[INFO] Updating a Service from kubernetes.yml
+[INFO] Updated Service: target/fabric8/applyJson/default/service-boot-demo-1.json
+[INFO] F8: Enabling debug on Deployment boot-demo
+[WARNING] The client is using resource type 'deployments' with unstable version 'v1beta1'
+[INFO] F8: Waiting for debug pod with selector LabelSelector(matchExpressions=[], matchLabels={app=boot-demo, provider=fabric8, group=com.burrsutter}, additionalProperties={}) and environment variables {JAVA_DEBUG_SUSPEND=false, JAVA_ENABLE_DEBUG=true}
+Trying internal type for name:Pod
+[INFO] F8:[W] boot-demo-bd7bcfd87-smthv status: Pending 
+[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running Ready
+[INFO] F8:[W] boot-demo-bd7bcfd87-smthv status: Pending 
+[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running 
+[INFO] F8:[W] boot-demo-bd7bcfd87-smthv status: Running Ready
+[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running 
+[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running 
+[INFO] F8: Port forwarding to port 5005 on pod boot-demo-bd7bcfd87-smthv using command /Users/burrsutter/minikube_0.28.1/bin/kubectl
+[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running : Pod Deleted
+----
+
+Visual Studio Code
+
+Debug - Add Configuration
+
+which creates a Launch.json file, then comment it like so
+----
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        // {
+        //     "type": "java",
+        //     "name": "Debug (Launch)",
+        //     "request": "launch",
+        //     "cwd": "${workspaceFolder}",
+        //     "console": "internalConsole",
+        //     "stopOnEntry": false,
+        //     "mainClass": "",
+        //     "args": ""
+        // },
+        // {
+        //     "type": "java",
+        //     "name": "Debug (Launch)-HellobootApplication<boot-demo>",
+        //     "request": "launch",
+        //     "cwd": "${workspaceFolder}",
+        //     "console": "internalConsole",
+        //     "stopOnEntry": false,
+        //     "mainClass": "com.burrsutter.HellobootApplication",
+        //     "args": "",
+        //     "projectName": "boot-demo"
+        // },
+        {
+            "type": "java",
+            "name": "Debug (Attach)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": "5005"
+        }
+    ]
+}
+----
+
+with port 5005
+
+
+
 == Node.js
 https://developers.redhat.com/blog/2018/05/15/debug-your-node-js-application-on-openshift-with-chrome-devtools/
+

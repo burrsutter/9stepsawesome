@@ -22,7 +22,7 @@ public class MyRESTController {
    @RequestMapping("/")
    public String sayHello() {
        System.out.println("/ " + hostname);
-       return "Aloha from Spring Boot! " + count++ + " on " + hostname + "\n";
+       return "G'Day from Spring Boot! " + count++ + " on " + hostname + "\n";
    }
 
    @RequestMapping("/sysresources") 
