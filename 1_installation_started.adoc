@@ -84,7 +84,7 @@ minikube config set vm-driver virtualbox #hyperkit
 # minishift addon enable admin-user <2>
 minikube start
 ----
-<1> I use 3 cpus here because I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
+<1> I use 2 cpus here because I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
 There is nothing in this series of exercises that is CPU intensive.
 <2> Minishift is secured by default, this creates an cluster "admin" user
 
