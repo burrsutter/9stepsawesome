@@ -39,6 +39,10 @@ Download & Install Minikube Cluster
 ----
 $ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.1/minikube-darwin-amd64
 $ chmod +x minikube 
+# or
+brew cask install minikube
+# if you don't have VirtualBox installed
+brew cask install virtualbox
 ----
 More Minikube releases https://github.com/kubernetes/minikube/releases
 
