@@ -71,8 +71,7 @@ $ oc project
 == Code
 Now that you have a Namespace, you need to craft some code
 
-The "hello" directory contains several "hello world" style projects.  Let's use SpringBoot
-Build and run a quick test of the endpoint.
+The "hello" directory contains several "hello world" style projects.  Let's use SpringBoot and run a quick test of the endpoint.
 
 ----
 $ cd hello/SpringBoot
