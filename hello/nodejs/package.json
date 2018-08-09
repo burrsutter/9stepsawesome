@@ -4,12 +4,12 @@
     "description": "Hello microservice running on NodeJS",
     "main": "hello-http.js",
     "scripts": {
-      "start": "node hello-http.js"
+        "start": "node hello-http.js"
     },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/burrsutter/9stepsawesome/tree/master/hello/nodejs"
     },
-        "author": "burrsutter@gmail.com",
-        "license": "Apache-2.0"
-}      
+    "author": "burrsutter@gmail.com",
+    "license": "Apache-2.0"
+}

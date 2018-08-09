@@ -30,7 +30,7 @@ $ kubectl get all -n yourspace
 
 Now invoke the "callinganother" endpoint on the myboot service
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/callinganother
+$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}" -n myspace)/callinganother
 Hello from Node.js! 0 on mynode-68b9b9ffcc-wspxf
 ----
 

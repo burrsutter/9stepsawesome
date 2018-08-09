@@ -140,7 +140,7 @@ Hello from Spring Boot! 0 on myboot-859cbbfb98-4rvl8
 Hello from Spring Boot! 1 on myboot-859cbbfb98-4rvl8
 ----
 
-Once you understand the basics then you can try the advanced demonstration.  Where the a stateful shopping cart is preserved across a rolling update based on leveraging the readiness probe.
+Once you understand the basics then you can try the advanced demonstration.  Where a stateful shopping cart is preserved across a rolling update based on leveraging the readiness probe.
 
 https://github.com/redhat-developer-demos/popular-movie-store
 

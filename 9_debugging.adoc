@@ -24,6 +24,15 @@ spec:
   type: NodePort
 ----
 
+and Create a file called deployment.yml
+
+----
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: myspace
+----
+
 mvn io.fabric8:fabric8-maven-plugin:3.5.40:setup
 
 mvn fabric8:debug
