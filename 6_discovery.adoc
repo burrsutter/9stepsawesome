@@ -14,7 +14,7 @@ and then load a Node.js endpoint into that new namespace
 $ cd hello/nodejs
 # test it locally
 $ npm start
-$ curl localhost:8080
+$ curl localhost:8000
 $ ctrl-c
 # build the docker image and test it
 $ docker build -t 9stepsawesome/mynode:v1 .
