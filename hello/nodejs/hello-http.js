@@ -1,10 +1,10 @@
-var http = require('http');
-var cnt = 0;
+const os = require('os');
+const http = require('http');
+let cnt = 0;
 
-http.createServer(function (req, res) {
-    var now = new Date();
-    res.end('Bonjour from Node.js! ' + cnt++ + ' on ' + process.env.HOSTNAME  + '\n');
-    
-}).listen(8000, '0.0.0.0');
-console.log('Server running at http://:8000/');
+http.createServer((req, res) =>
+    res.end(`Bonjour from Node.js! ${cnt++} on ${os.hostname()}\n`)
+).listen(8000);
+
+console.log(`Server running at http://localhost:8000/`);
 
