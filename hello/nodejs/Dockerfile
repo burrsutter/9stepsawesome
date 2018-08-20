@@ -1,12 +1,12 @@
-FROM node:8
+FROM bucharestgold/centos7-s2i-nodejs:10.x
 
-MAINTAINER Burr Sutter "burrsutter@gmail.com"
+LABEL maintainer="Burr Sutter \"burrsutter@gmail.com\""
 
 EXPOSE 8000
 
-WORKDIR /usr/src/
+WORKDIR /opt/app-root/src
 
-COPY hello-http.js /usr/src
-COPY package.json /usr/src
+COPY hello-http.js .
+COPY package.json .
 
-CMD ["/bin/bash", "-c", "npm start" ]
+CMD ["npm", "start"]
