@@ -134,7 +134,9 @@ and if needed, point kubectl back at minikube with "kubectl config use-context m
 Also, there is a cool tool that makes switching between Kubernetes clusters and the context a lot easier
 https://github.com/ahmetb/kubectx
 
+----
 brew install kubectx
+----
 
 === Namespaces & Pods
 ----
