@@ -31,7 +31,7 @@ spec:
             cpu: "1000m" # 1 core
         livenessProbe:
           httpGet:
-              port: http
+              port: 8080
               path: /
           initialDelaySeconds: 10
           periodSeconds: 5
