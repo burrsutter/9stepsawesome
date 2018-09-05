@@ -161,7 +161,7 @@ metadata:
 
 Change the deployment to look for its env from the configmap
 ----
-$ kubectl replace -f kubefiles/myboot-deployment-configuration.yaml
+$ kubectl replace -f kubefiles/myboot-deployment-configuration.yml
 ----
 
 Replacement of the Deployment should cause the pods to respawn, if not or just for good measure you can delete them and they will get recreated
