@@ -26,18 +26,20 @@ minikube and minishift are essentially equivalent and will be used for the demon
 Download & Install Kubernetes CLI
 [source,bash]
 ----
-$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.1/bin/darwin/amd64/kubectl 
+# MacOS
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/darwin/amd64/kubectl 
+# 
 $ chmod +x kubectl
 # or
 brew install kubectl 
 ----
-Other instructions for finding and downloading the a kubectl 
+Linux & Windows instructions for finding and downloading the a kubectl 
 https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 
 Download & Install Minikube Cluster
 [source,bash]
 ----
-$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.28.1/minikube-darwin-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.29.0/minikube-darwin-amd64
 $ chmod +x minikube 
 ----
 More Minikube releases https://github.com/kubernetes/minikube/releases
@@ -47,8 +49,8 @@ OR
 Download & Install Minishift Cluster
 [source,bash]
 ----
-$ curl -LO https://github.com/minishift/minishift/releases/download/v1.21.0/minishift-1.21.0-darwin-amd64.tgz
-$ tar -xvf minishift-1.21.0-darwin-amd64.tgz 
+$ curl -LO https://github.com/minishift/minishift/releases/download/v1.24.0/minishift-1.24.0-darwin-amd64.tgz
+$ tar -xvf minishift-1.24.0-darwin-amd64.tgz 
 ----
 More Minishift releases https://github.com/minishift/minishift/releases
 
@@ -60,17 +62,17 @@ Note: "minikube" should be interchangeable with "minishift" in the instructions 
 ----
 #!/bin/bash
 
-export MINIKUBE_HOME=/Users/burrsutter/minikube_0.28.1/bin;
+export MINIKUBE_HOME=/Users/burrsutter/minikube_0.29.0/bin;
 export PATH=$MINIKUBE_HOME:$PATH
 ----
 
 [source,bash]
 ----
 $ minikube version
-minikube version: v0.28.
+minikube version: v0.29.0
 # or
 $ minishift version
-minishift v1.21.0+a8c8b37
+minishift v1.24.0+8a904d0
 ----
 
 === Create the VM
@@ -80,16 +82,25 @@ minishift v1.21.0+a8c8b37
 
 minikube config set memory 6144
 minikube config set cpus 2 <1>
-minikube config set vm-driver virtualbox #hyperkit
-# minishift addon enable admin-user <2>
-# minishift addon enable anyuid <3>
+minikube config set vm-driver virtualbox #hyperkit <2>
+# minishift addon enable admin-user <3>
+# minishift addon enable anyuid <4>
 minikube start
 ----
 <1> I use 2 cpus here because I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
-There is nothing in this series of exercises that is CPU intensive.
-<2> Minishift is secured by default, this creates an cluster "admin" user
-<3> A mechanism on OpenShift that allows the execution of an image with any user id,  including root.
+There is nothing in this series of exercises that is CPU intensive but minishift has a 10 pod per core limit.
+<2> I use virtualbox because it is available on all platforms.  There a number of hypervisor options
+https://kubernetes.io/docs/tasks/tools/install-minikube/#install-a-hypervisor
+<3> Minishift is secured by default, this creates an cluster "admin" user
+
+Note: with 1.24, I have seen this command fail, the workaround is to wait until minishift start completes then use
+"minishift addons apply admin-user"
+
+<4> A mechanism on OpenShift that allows the execution of an image with any user id, including root.
 https://github.com/burrsutter/9stepsawesome/issues/3
+
+Note: with 1.24, I have seen this command fail, the workaround is to wait until minishift start completes then use
+"minishift addons apply anyuid"
 
 .VirtualBox UI
 image::virtualbox_ui.png[VirtualBox]
@@ -98,8 +109,8 @@ image::virtualbox_ui.png[VirtualBox]
 === Check status, IP & Dashboard/Console
 ----
 $ minikube config view
-- cpus: 3
-- memory: 8192
+- cpus: 2
+- memory: 6144
 - vm-driver: virtualbox
 $ minikube status
 minikube: Running
@@ -124,9 +135,11 @@ image::openshift_dashboard.png[Minishift Dashboard]
 ----
 $ kubectl config current-context
 minikube
+# or in the case of minishift
+# /192-168-99-102:8443/admin
 
 $ kubectl version
-Client Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.1", GitCommit:"d4ab47518836c750f9949b9e0d387f20fb92260b", GitTreeState:"clean", BuildDate:"2018-04-12T14:26:04Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"darwin/amd64"}
+Client Version: version.Info{Major:"1", Minor:"12", GitVersion:"v1.12.0", GitCommit:"0ed33881dc4355495f623c6f22e7dd0b7632b7c0", GitTreeState:"clean", BuildDate:"2018-09-27T17:05:32Z", GoVersion:"go1.10.4", Compiler:"gc", Platform:"darwin/amd64"}
 Server Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.0", GitCommit:"fc32d2f3698e36b93322a3465f63a14e9f0eaead", GitTreeState:"clean", BuildDate:"2018-03-26T16:44:10Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
 ----
 and if needed, point kubectl back at minikube with "kubectl config use-context minikube"
@@ -190,6 +203,8 @@ The "default" namespace should already be the current context, but setting it he
 
 ----
 $ kubectl config set-context $(kubectl config current-context) --namespace=default
+# or
+$ kubens default #kubens comes with the kubectx tool
 ----
 
 The command "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production
@@ -240,6 +255,13 @@ $ curl $(minikube service hello-minikube --url)
 ----
 or just load up the URL in your favorite browser
 https://screencast.com/t/k5GVJlfg
+
+Note: minishift has a slightly different variant on the "service" command
+----
+$ minishift openshift service hello-minikube --url
+# and curl it
+$ curl $(minishift openshift service hello-minikube --url)
+----
 
 The Deployment that was generated via your "kubectl run" commamnd actually has a bunch of interesting defaults
 ----
@@ -310,7 +332,7 @@ $ minikube stop
 $ minikube start
 ----
 
-and if you need to clean up the VM entirely
+and if you need to wipe out the VM entirely
 ----
 $ minikube delete
 ----
@@ -324,7 +346,7 @@ and your kubectl configuration goes in a different hidden directory at
 ----
 $HOME/.kube/config
 ----
-and if thing go really badly, you might need to wipe out those directories
+and if things go really badly, you might need to wipe out those directories
 ----
 $ rm -rf ~/.kube
 $ rm -rf $MINIKUBE_HOME/.minikube

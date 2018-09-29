@@ -1,6 +1,9 @@
 = Main Readme
+Slides for 9 Steps to Awesome with Kubernetes at
 
-Details in the individuals steps
+http://bit.ly/9stepsawesome[bit.ly/9stepsawesome]
+
+Details in the individuals steps below
 
 include::1_installation_started.adoc[Step 1: Installation & Getting Started]
 
