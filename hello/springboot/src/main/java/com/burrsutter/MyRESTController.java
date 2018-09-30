@@ -61,7 +61,7 @@ public class MyRESTController {
    public ResponseEntity<String> health() {               
         // if (count++ < 5) {
         //    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Bad");
-        // } else {    
+        // } else {             
             return ResponseEntity.status(HttpStatus.OK)
                 .body("I am fine, thank you\n");
         // }
