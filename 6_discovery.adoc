@@ -68,7 +68,9 @@ If you wish to update the Node.js endpoint code, just remember the -n yourspace 
 $ docker build -t 9stepsawesome/mynode:v1 .
 $ kubectl delete pod -l app=mynode -n yourspace
 ----
-
 The delete will cause another deployment based on the new image.
+
+And if you wish to "switch" namespaces and avoid typing the -n yourspace all the time, just remember the kubectx and kubens tips mentioned way back in Step 1
+
 
 
