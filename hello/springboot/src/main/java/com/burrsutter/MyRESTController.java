@@ -15,14 +15,17 @@ public class MyRESTController {
     private Environment environment;
 
    final String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
+   String greeting = "Aloha";
+   
    private int count = 0; // simple counter to see lifecycle
 
    RestTemplate restTemplate = new RestTemplate();
 
    @RequestMapping("/")
    public String sayHello() {
-       System.out.println("/ " + hostname);
-       return "Aloha from Spring Boot! " + count++ + " on " + hostname + "\n";
+       greeting = environment.getProperty("GREETING","Aloha");
+       System.out.println(greeting + " from " + hostname);
+       return greeting + " from Spring Boot! " + count++ + " on " + hostname + "\n";
    }
 
    @RequestMapping("/sysresources") 
@@ -68,12 +71,12 @@ public class MyRESTController {
    public String configure() {
         String databaseConn = environment.getProperty("DBCONN","Default");
         String msgBroker = environment.getProperty("MSGBROKER","Default");
-        String hello = environment.getProperty("GREETING","Default");
+        greeting = environment.getProperty("GREETING","Default");
         String love = environment.getProperty("LOVE","Default");
         return "Configuration for : " + hostname + "\n" 
             + "databaseConn=" + databaseConn + "\n"
             + "msgBroker=" + msgBroker + "\n"
-            + "hello=" + hello + "\n"
+            + "greeting=" + greeting + "\n"
             + "love=" + love + "\n";
    }
 

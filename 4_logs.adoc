@@ -60,7 +60,7 @@ This is more exciting when you might have 3 different microservices where the na
 
 stern also offers a --label selector
 
-and if you are running Istio make sure to add the -c to specify your business logic container, instead of the side-car...unless you wish to view the sidecar's logs :-)
+and if you are running Istio make sure to add the -c to specify your business logic container, instead of the sidecar...unless you wish to view the sidecar's logs :-)
 
 Another option is kail 
 ----

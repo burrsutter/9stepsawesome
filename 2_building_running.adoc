@@ -191,7 +191,7 @@ $ top -o %MEM
 
 Update MyRESTController.java
 ----
-return "Bonjour from Spring Boot! " + count++ + " on " + hostname + "\n";
+greeting = environment.getProperty("GREETING","Bonjour");
 ----
 
 Compile & Build the fat jar

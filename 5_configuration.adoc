@@ -33,6 +33,13 @@ Environment variables can be manipulated at the Deployment level. Changes cause 
 $ kubectl get pods -w
 ----
 
+If you have more than one pod, tweak the replicas on the deployment descriptor
+----
+$ kubectl edit deployment myboot
+or
+$ kubectl scale --replicas=1 deployment/myboot
+----
+
 Then set the env var at the Deployment 
 ----
 $ kubectl set env deployment/myboot GREETING="namaste"
@@ -67,7 +74,9 @@ $ kubectl set env deployment/myboot DBCONN="jdbc:sqlserver://45.91.12.123:1443;u
 
 You can see the set variables via the -o yaml trick
 ----
-$ kubectl get deployment/myboot -o yaml, or -o json
+$ kubectl get deployment/myboot -o yaml
+# or
+$ kubectl get deployment/myboot -o json
 ...
     spec:
       containers:
