@@ -50,6 +50,8 @@ $ kubectl create -f kubefiles/myspace-namespace.yml # <1>
 $ kubectl config set-context minikube --namespace=myspace # <2>
 # or if you are using minishift and oc, there is a shortcut
 $ oc project myspace
+# or if you installed kubectx, try
+# kubens myspace
 ----
 <1> Using the yaml allows you to place this file in a source repository
 <2> The setting of the context means you have to type -n myspace less often.  Also, when using Minishift,
@@ -176,6 +178,15 @@ You can then use "kubectl get pods" to see the pods that have been created
 $ kubectl get pods
 ----
 
+Note: 3 pods might push you out of your memory limits for your VM.  Check your memory usage with:
+----
+$ minishift ssh
+# or
+$ minikube ssh
+$ free -m
+$ top -o %MEM
+----
+
 == Update
 
 Update MyRESTController.java
@@ -190,7 +201,7 @@ mvn clean package
 
 You can test with "java -jar target/boot-demo-0.0.1.jar" and "curl localhost:8080".  Ideally, you would have unit tests executed with "mvn test" as well.
 
-Build the new docker image
+Build the new docker image with a v2 tag
 ----
 $ docker build -t 9stepsawesome/myboot:v2 .
 $ docker images | grep myboot
