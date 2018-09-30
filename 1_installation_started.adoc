@@ -12,13 +12,17 @@ OpenShift is Red Hat's distribution of Kubernetes
 
 minikube and minishift are essentially equivalent and will be used for the demonstrations/examples below.
 
+These instructions are primarily for Linux & MacOS.  At some point, I do hope to find the time translate them to Windows PowerShell.  
+These instructions have NOT been tested well on Windows Bash.
 
 === Prerequisites
 * Docker for Mac/Windows
+* bash shell
 * git
 * JDK 
 * Apache Maven (compilation of Java projects)
 * curl, tar
+* Homebrew for Mac - "brew install stern"
 * minikube and/or minishift will be downloaded below
 * kubectl and/or oc will be downloaded below
 

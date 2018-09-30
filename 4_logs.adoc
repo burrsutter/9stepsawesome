@@ -9,7 +9,7 @@ The focus here is on stuff a developer needs to get access to do help understand
 
 Make sure you are running 3 replicas (3 pods/instances of your application)
 ----
-kubectl scale --replicas=3 deployment/myboot
+$ kubectl scale --replicas=3 deployment/myboot
 ----
 
 and you can see them with kubectl get pods
@@ -56,10 +56,16 @@ and stern will let you see the logs across the 3 different pods.
 .stern output
 image::stern_output.png[Stern]
 
-This is more exciting when you might have 3 different microservices by the names are similiar enough to use stern.
+This is more exciting when you might have 3 different microservices where the names are similiar enough to use stern.
 
 stern also offers a --label selector
 
-and if you are runnig Istio make sure to add the -c to specify your business logic container, instead of the side-car...unless you wish to view the side-car's logs :-)
+and if you are running Istio make sure to add the -c to specify your business logic container, instead of the side-car...unless you wish to view the sidecar's logs :-)
 
+Another option is kail 
+----
+$ brew install kail
+$ kail
+----
 
+This will output the logs across your namespace, in our case, the 3 replicas of myboot are all in the same namespace
