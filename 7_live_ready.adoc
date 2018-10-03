@@ -1,7 +1,7 @@
 = Step 7: Live and Ready
 Burr Sutter <burrsuter@gmail.com>
 
-If you remember that both our rolling update (seen in Step 2) and our setting/unsetting env variables (seen in Step 5) caused the rods to "restart".  The problem is that clients (polling curl) also received error messages during this "downtime".  
+If you remember that both our rolling update (seen in Step 2) and our setting/unsetting env variables (seen in Step 5) caused the pods to "restart".  The problem is that clients (polling curl) also received error messages during this "downtime".  
 
 Now, let's have a zero-downtime rolling update/deployment.  
 

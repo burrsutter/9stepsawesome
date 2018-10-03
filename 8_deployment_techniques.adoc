@@ -9,6 +9,7 @@ Switching over to yourspace as the default since we will be manipulating the Nod
 
 ----
 $ kubectl config set-context minikube --namespace=yourspace
+# or kubens yourspace
 $ kubectl get pods
 NAME                      READY     STATUS    RESTARTS   AGE
 mynode-68b9b9ffcc-4kkg5   1/1       Running   0          15m
@@ -250,8 +251,8 @@ $ kubectl get events -w
 
 And yet your polling client, stays with the old code & old pod
 ----
-Hello from Spring Boot! 133 on myboot-859cbbfb98-4rvl8
-Hello from Spring Boot! 134 on myboot-859cbbfb98-4rvl8
+Aloha from Spring Boot! 133 on myboot-859cbbfb98-4rvl8
+Aloha from Spring Boot! 134 on myboot-859cbbfb98-4rvl8
 ----
 
 If you watch a while, the CrashLoopBackOff will continue and the restart count will increment.
@@ -266,21 +267,14 @@ No more System.exit()
             .body("I am fine, thank you\n");
    }
 ----
-and Aloha
-----
-   @RequestMapping(method = RequestMethod.GET, value = "/health")
-   public ResponseEntity<String> health() {        
-        return ResponseEntity.status(HttpStatus.OK)
-            .body("I am fine, thank you\n");
-   }
-----
+And change the greeting response to something you recognize.
 
 Save
 
 ----
 $ mvn clean package
 
-$ docker build -t 9stepsawesome/myboot:v3 
+$ docker build -t 9stepsawesome/myboot:v3 .
 ----
 
 and now rollout the change to v3
@@ -301,13 +295,14 @@ Next, we will use a 2nd Deployment like we did with Blue/Green.
 $ kubectl create -f kubefiles/myboot-deployment-canary.yml
 ----
 
-And you can see a new pod being bonjour
+And you can see a new pod being born
 ----
 $ kubectl get pods
 ----
 
-And this is the v3 one with Aloha
+And this is the v3 one
 ----
+$ kubectl get pods -l app=mybootcanary
 $ kubectl exec -it mybootcanary-6ddc5d8d48-ptdjv curl localhost:8080/
 ----
 
@@ -322,7 +317,7 @@ Tweak the Service selector for this new label
 $ kubectl patch service/myboot -p '{"spec":{"selector":{"newstuff":"withCanary","app": null}}}'
 ----
 
-You should see approximately 30% Aloha mixed in with Hello
+You should see approximately 30% canary mixed in with previous deployment
 ----
 Hello from Spring Boot! 23 on myboot-d6c8464-ncpn8
 Hello from Spring Boot! 22 on myboot-d6c8464-qnxd8
