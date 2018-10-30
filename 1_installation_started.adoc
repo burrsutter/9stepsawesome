@@ -35,7 +35,7 @@ $ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin
 # 
 $ chmod +x kubectl
 # or
-brew install kubectl 
+$ brew install kubectl 
 ----
 Linux & Windows instructions for finding and downloading the a kubectl 
 https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
@@ -46,9 +46,9 @@ Download & Install Minikube Cluster
 $ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.29.0/minikube-darwin-amd64
 $ chmod +x minikube 
 # or
-brew cask install minikube
+$ brew cask install minikube
 # if you don't have VirtualBox installed
-brew cask install virtualbox
+$ brew cask install virtualbox
 ----
 More Minikube releases https://github.com/kubernetes/minikube/releases
 
