@@ -1,0 +1,24 @@
+CREATE ROLE myuser WITH LOGIN PASSWORD 'mypassword';
+ALTER ROLE myuser CREATEDB;
+CREATE DATABASE mydb;
+
+SELECT * FROM pg_catalog.pg_tables;
+
+start.spring.io
+Artifact: boot_progress
+Deps: Web, JPA, Actuator, postgresql, Thymeleaf, DevTools
+
+Based on
+https://www.callicoder.com/spring-boot-jpa-hibernate-postgresql-restful-crud-api-example/
+
+mvn spring-boot:run
+
+curl -X POST http://localhost:8080/questions -d @testquestion.json --header "Content-Type: application/json"
+
+curl http://localhost:8080/questions
+
+curl http://localhost:8080/questions/1000
+
+curl -X DELETE http://localhost:8080/questions/1000
+
+ 

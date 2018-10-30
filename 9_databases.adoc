@@ -1,0 +1,129 @@
+= Step 9: Databases
+Burr Sutter <burrsuter@gmail.com>
+
+== Postgres via Deployments
+
+1. PersistentVolume
+2. PersistentVolumeClaim
+3. Deployment
+4. Service
+
+----
+$ minikube docker-env
+# or
+$ minishift docker-env
+
+$ eval $(minishift docker-env)
+----
+
+Pre-pull the docker image
+----
+$ docker pull postgres:10.5
+----
+
+Check to see if you have any preconfigured PVs
+
+----
+$ kubectl get pv --all-namespaces
+----
+
+Create the PV, PVC, Deployment and Service
+
+----
+$ kubectl create -f kubefiles/postgres-pv.yml
+
+$ kubectl create -f kubefiles/postgres-pvc.yml
+
+$ kubectl create -f kubefiles/postgres-deployment.yml
+
+$ kubectl create -f kubefiles/postgres-service.yml
+
+----
+
+Now, make the Postgres port 5432 available at localhost
+
+----
+$ kubectl port-forward <posgtres-pod> 5432:5432
+----
+
+Access with pgAdmin https://www.postgresql.org/ftp/pgadmin/pgadmin4/v3.4
+
+https://screencast.com/t/iEib4pOPdR
+
+https://screencast.com/t/uS1jWltpDyS4
+
+Tools -> Query Tool
+
+----
+CREATE ROLE myuser WITH LOGIN PASSWORD 'mypassword';
+ALTER ROLE myuser CREATEDB;
+CREATE DATABASE mydb;
+ALTER DATABASE mydb owner to "myuser"
+----
+
+Run the Spring Boot + Postgres app on localhost.  This is using Hibernate's ability to generate database schema from the object model
+
+----
+cd hellodata/boot_postgres
+
+mvn spring-boot:run -Dspring-boot.run.arguments=--spring.config.location=src/main/resources/application-local.properties
+
+----
+
+There are 2 application.properties files, one for localhost testing and one for "production" when it runs inside of Kubernetes/OpenShift
+
+Check pgAdmin
+
+https://screencast.com/t/Tf4EhnYMSS45
+
+Add a test question by POST'ing the testquestion.json file
+
+----
+curl -X POST http://localhost:8080/questions -d @testquestion.json --header "Content-Type: application/json"
+----
+
+Query for the questions in the database via the REST API
+
+----
+curl http://localhost:8080/questions
+----
+
+https://screencast.com/t/xG7IZFsh
+
+Now, let's run the Spring Boot app as a Pod
+
+----
+mvn clean package -DskipTests
+
+docker build -t 9stepsawesome/mybootdata:v1 .
+
+cd ../../
+
+kubectl create -f kubefiles/mybootdata-deployment.yml
+
+kubectl create -f kubefiles/mybootdata-service.yml
+
+kubectl get service/mybootdata -o jsonpath="{.spec.ports[*].nodePort}"
+
+QAHOSTPORT=$(minikube ip):$(kubectl get service/mybootdata -o jsonpath="{.spec.ports[*].nodePort}")
+
+curl $QAHOSTPORT/questions
+
+curl -X POST $QAHOSTPORT/questions -d @anotherquestion.json --header "Content-Type: application/json"
+----
+
+https://screencast.com/t/58LoI1Clpk
+
+https://screencast.com/t/58LoI1Clpk
+
+
+== Sharing the in-container data with the host MacOS or Windows
+(under development)
+To share the in-VM data directory with the host OS
+minikube mount ~/minikube_0.29.0/data:/data
+or minikube mount host-directory:vm-directory
+
+
+
+== Postgres via Operator
+(under development)

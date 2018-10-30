@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-volume
+spec:
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 4Gi
+  hostPath:
+    path: /data/pgvol1/

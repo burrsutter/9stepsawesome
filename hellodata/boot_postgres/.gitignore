@@ -23,8 +23,3 @@
 /dist/
 /nbdist/
 /.nb-gradle/
-
-### Other ###
-target
-.DS_Store
-.mvn
