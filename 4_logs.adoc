@@ -69,3 +69,9 @@ $ kail
 ----
 
 This will output the logs across your namespace, in our case, the 3 replicas of myboot are all in the same namespace
+
+You can use use kail and isolate a specific deployment, specific container (a pod can have more than one container) and look back in time
+
+----
+$ kail --deploy=myboot -c myboot --since=1h
+----
