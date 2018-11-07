@@ -143,3 +143,5 @@ or minikube mount host-directory:vm-directory
 
 https://crunchydata.github.io/postgres-operator/stable/installation/manual-installation/
 
+https://github.com/CrunchyData/postgres-operator
+
