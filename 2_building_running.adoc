@@ -37,6 +37,13 @@ status:
   phase: Active
 ----
 
+You can also use the 
+----
+kubect get namespace/demo --export -o yaml 
+----
+for something cleaner, something you might store and use later with kubectl apply -f
+
+
 Deleting a Namespace is also available via command
 
 ----

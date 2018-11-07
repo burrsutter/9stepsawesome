@@ -15,7 +15,7 @@ public class MyRESTController {
     private Environment environment;
 
    final String hostname = System.getenv().getOrDefault("HOSTNAME", "unknown");
-   String greeting = "Aloha";
+   String greeting;
    
    private int count = 0; // simple counter to see lifecycle
 

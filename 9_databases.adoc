@@ -131,10 +131,19 @@ image::chrome_rest_api.png[Browser Questions]
 (under development)
 
 To share the in-VM data directory with the host OS
+
+minikube automatically shares /Users with the VM
+
 ----
-minikube mount ~/minikube_0.29.0/data:/data
+minikube ssh
+cd /Users
 ----
-or minikube mount host-directory:vm-directory
+
+minishift does not automatically share a folder with the VM, so for equivalent functionality
+
+----
+minishift hostfolder add -t sshfs --source /Users --target /Users Users
+----
 
 
 
