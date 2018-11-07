@@ -200,5 +200,5 @@ hello=Default
 love=Default
 ----
 
-There are a lot more ways to have fun with ConfigMaps, the core documentation has you manipualte a Pod specification instead of a Deployment but the results are basically the same
+There are a lot more ways to have fun with ConfigMaps, the core documentation has you manipulate a Pod specification instead of a Deployment but the results are basically the same
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap
