@@ -1,0 +1,46 @@
+= Fun Stuff
+Burr Sutter <burrsuter@gmail.com>
+
+----
+cd hello/python
+docker build -t 9stepsawesome/mypython .
+
+cd ../go
+docker build -t 9stepsawesome/mygo .
+
+cd ../nodejs
+docker build -t 9stepsawesome/mynode .
+----
+
+----
+kubectl run mypython --image=9stepsawesome/mypython:latest --port=8000 --image-pull-policy=Never
+kubectl run mygo --image=9stepsawesome/mygo:latest --port=8000 --image-pull-policy=Never
+kubectl run mynode --image=9stepsawesome/mynode:latest --port=8000 --image-pull-policy=Never
+kubectl get pods --show-labels
+----
+
+----
+kubectl create -f kubefiles/my-service.yml
+curl $(minikube ip):$(kubectl get service/myservice -o jsonpath="{.spec.ports[*].nodePort}")
+
+curl: (7) Failed to connect to 192.168.99.102 port 32595: Connection refused
+----
+
+----
+kubectl label pod mypython-857985fdb6-97ll5 app=mypods
+
+curl $(minikube ip):$(kubectl get service/myservice -o jsonpath="{.spec.ports[*].nodePort}")
+
+kubectl label pod mynode-77fbc4b456-jfz8t app=mypods
+
+kubectl label pod mygo-64dd5b565d-jg8mh app=mypods
+
+while true
+do 
+  curl $(minikube ip):$(kubectl get service/myservice -o jsonpath="{.spec.ports[*].nodePort}")
+  sleep .5;
+done
+
+----
+
+

@@ -10,7 +10,7 @@ import (
 func main() {
 
 	//api := mux.NewRouter()
-	http.HandleFunc("/hello", HelloHandler)
+	http.HandleFunc("/", HelloHandler)
 	//http.Handle("/hello", api)
     
 	fmt.Println("Listening on localhost:8000")
