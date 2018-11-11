@@ -2,11 +2,12 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: postgres-pvc
-  annotations:
-    volume.beta.kubernetes.io/storage-class: standard
+  labels: 
+   app: postgres
 spec:
+  storageClassName: mystorage
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 4Gi
+      storage: 1Gi

@@ -1,11 +1,14 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: postgres-volume
+  name: postgres-pv
+  labels:
+    type: local
 spec:
+  storageClassName: mystorage
   accessModes:
     - ReadWriteOnce
   capacity:
-    storage: 4Gi
+    storage: 2Gi
   hostPath:
-    path: /data/pgvol1/
+    path: "/data/mypostgresdata/"

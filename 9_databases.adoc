@@ -39,8 +39,24 @@ Create the PV, PVC, Deployment and Service
 [source,bash]
 ----
 $ kubectl create -f kubefiles/postgres-pv.yml
+$ kubectl get pv/postgres-pv
+NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM     STORAGECLASS   REASON    AGE
+postgres-pv   2Gi        RWO            Retain           Available             mystorage                14s
+
 $ kubectl create -f kubefiles/postgres-pvc.yml
+$ kubectl get pv/postgres-pv
+NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM               STORAGECLASS   REASON    AGE
+postgres-pv   2Gi        RWO            Retain           Bound     demo/postgres-pvc   mystorage                49s
+
+$ kubectl get pvc/postgres-pvc
+NAME           STATUS    VOLUME        CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+postgres-pvc   Bound     postgres-pv   2Gi        RWO            mystorage      27s
+
 $ kubectl create -f kubefiles/postgres-deployment.yml
+$ kubectl get pods
+NAME                       READY     STATUS    RESTARTS   AGE
+postgres-bf856c974-9hdrp   1/1       Running   0          5s
+
 $ kubectl create -f kubefiles/postgres-service.yml
 ----
 
@@ -68,6 +84,25 @@ ALTER ROLE myuser CREATEDB;
 CREATE DATABASE mydb;
 ALTER DATABASE mydb owner to "myuser"
 ----
+
+Note: You can also run psql CLI from within the Postgres Pod
+----
+$ kubectl exec -it postgres-bf856c974-xqtf8 /bin/bash
+# replacing postgres-bf856c974-xqtf8 with your pod id
+$ psql --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"
+
+postgresdb-# \l
+----
+
+psql tips:
+
+----
+\l (list databases)
+\c newDatabase (switch database) 
+\dt (list tables)
+\q quit
+----
+
 
 Run the Spring Boot + Postgres app on localhost.  This is using Hibernate's ability to generate database schema from the object model
 
@@ -128,9 +163,11 @@ image::chrome_rest_api.png[Browser Questions]
 
 
 == Sharing the in-container data with the host MacOS or Windows
-(under development)
 
-To share the in-VM data directory with the host OS
+https://github.com/kubernetes/minikube/blob/master/docs/persistent_volumes.md
+
+
+To share the in-VM directory with the host OS
 
 minikube automatically shares /Users with the VM
 
@@ -145,7 +182,7 @@ minishift does not automatically share a folder with the VM, so for equivalent f
 minishift hostfolder add -t sshfs --source /Users --target /Users Users
 ----
 
-
+Note: The Postgres image will not start by default on /Users/ due to permissions problems
 
 == Postgres via Operator
 (under development)
