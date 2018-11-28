@@ -10,11 +10,11 @@ pip install --no-cache-dir -r requirements.txt
 
 python app.py
 
-curl localhost:5000
+curl localhost:8000
 ctrl-c
 
 docker build -t burrsutter/flask_web_app .
 
-docker run -it -p 5000:5000 --rm  burrsutter/flask_web_app
+docker run -it -p 8000:8000 --rm  burrsutter/flask_web_app
 
-curl localhost:5000
+curl localhost:8000
