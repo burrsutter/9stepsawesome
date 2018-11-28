@@ -35,7 +35,7 @@ $ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin
 # 
 $ chmod +x kubectl
 # or
-$ brew install kubectl 
+$ brew install kubernetes-cli
 ----
 Linux & Windows instructions for finding and downloading the a kubectl 
 https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
