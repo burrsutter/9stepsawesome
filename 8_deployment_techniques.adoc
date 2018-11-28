@@ -165,7 +165,7 @@ You have just flipped all users to Bonjour (GREEN) and if you wish to flip back
 $ kubectl patch svc/mynode -p '{"spec":{"selector":{"app":"mynode"}}}'
 ----
 
-Note: Our deployment yaml did not have a live & ready probe, things worked out OK here because we wanted until long after mynodenew was up and running before flipping the service selector.
+Note: Our deployment yaml did not have a live & ready probe, things worked out OK here because we waited until long after mynodenew was up and running before flipping the service selector.
 
 == Built-In Canary
 
