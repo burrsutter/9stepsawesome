@@ -39,7 +39,7 @@ status:
 
 You can also use the 
 ----
-kubect get namespace/demo --export -o yaml 
+kubectl get namespace/demo --export -o yaml 
 ----
 for something cleaner, something you might store and use later with kubectl apply -f
 
