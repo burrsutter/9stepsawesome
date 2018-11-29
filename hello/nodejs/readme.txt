@@ -12,7 +12,7 @@ Test it in Docker
 minishift docker-env
 minikube docker-env
 
-docker build -t 9stepsawesome/mynode:v1 . 
+docker build -t 9stepsawesome/mynode:v1 .
 
 docker images | grep mynode
 
