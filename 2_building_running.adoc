@@ -223,9 +223,9 @@ $ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
 
 And if you were running your polling curl command, you might see
 ----
-Hello from Spring Boot! 346 on myboot-79bfc988c8-ttz5r
-Hello from Spring Boot! 270 on myboot-79bfc988c8-ntb8d
-Hello from Spring Boot! 348 on myboot-79bfc988c8-ttz5r
+Aloha from Spring Boot! 346 on myboot-79bfc988c8-ttz5r
+Aloha from Spring Boot! 270 on myboot-79bfc988c8-ntb8d
+Aloha from Spring Boot! 348 on myboot-79bfc988c8-ttz5r
 curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
 curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
 curl: (7) Failed to connect to 192.168.99.105 port 31218: Connection refused
