@@ -31,7 +31,7 @@ Download & Install Kubernetes CLI
 [source,bash]
 ----
 # MacOS
-$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.12.0/bin/darwin/amd64/kubectl 
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.13.0/bin/darwin/amd64/kubectl 
 # 
 $ chmod +x kubectl
 # or
@@ -43,7 +43,7 @@ https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 Download & Install Minikube Cluster
 [source,bash]
 ----
-$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.29.0/minikube-darwin-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.33.1/minikube-darwin-amd64
 $ chmod +x minikube 
 # or
 $ brew cask install minikube
@@ -57,8 +57,8 @@ OR
 Download & Install Minishift Cluster
 [source,bash]
 ----
-$ curl -LO https://github.com/minishift/minishift/releases/download/v1.24.0/minishift-1.24.0-darwin-amd64.tgz
-$ tar -xvf minishift-1.24.0-darwin-amd64.tgz 
+$ curl -LO https://github.com/minishift/minishift/releases/download/v1.30.0/minishift-1.30.0-darwin-amd64.tgz
+$ tar -xvf minishift-1.30.0-darwin-amd64.tgz 
 ----
 More Minishift releases https://github.com/minishift/minishift/releases
 
@@ -70,17 +70,17 @@ Note: "minikube" should be interchangeable with "minishift" in the instructions 
 ----
 #!/bin/bash
 
-export MINIKUBE_HOME=/Users/burrsutter/minikube_0.29.0/bin;
+export MINIKUBE_HOME=/Users/burrsutter/minikube_0.33.1/bin;
 export PATH=$MINIKUBE_HOME:$PATH
 ----
 
 [source,bash]
 ----
 $ minikube version
-minikube version: v0.29.0
+minikube version: v0.33.1
 # or
 $ minishift version
-minishift v1.24.0+8a904d0
+minishift v1.30.0+186b034
 ----
 
 === Create the VM
@@ -101,14 +101,8 @@ There is nothing in this series of exercises that is CPU intensive but minishift
 https://kubernetes.io/docs/tasks/tools/install-minikube/#install-a-hypervisor
 <3> Minishift is secured by default, this creates an cluster "admin" user
 
-Note: with 1.24, I have seen this command fail, the workaround is to wait until minishift start completes then use
-"minishift addons apply admin-user"
-
 <4> A mechanism on OpenShift that allows the execution of an image with any user id, including root.
 https://github.com/burrsutter/9stepsawesome/issues/3
-
-Note: with 1.24, I have seen this command fail, the workaround is to wait until minishift start completes then use
-"minishift addons apply anyuid"
 
 .VirtualBox UI
 image::virtualbox_ui.png[VirtualBox]
@@ -147,8 +141,8 @@ minikube
 # /192-168-99-102:8443/admin
 
 $ kubectl version
-Client Version: version.Info{Major:"1", Minor:"12", GitVersion:"v1.12.0", GitCommit:"0ed33881dc4355495f623c6f22e7dd0b7632b7c0", GitTreeState:"clean", BuildDate:"2018-09-27T17:05:32Z", GoVersion:"go1.10.4", Compiler:"gc", Platform:"darwin/amd64"}
-Server Version: version.Info{Major:"1", Minor:"10", GitVersion:"v1.10.0", GitCommit:"fc32d2f3698e36b93322a3465f63a14e9f0eaead", GitTreeState:"clean", BuildDate:"2018-03-26T16:44:10Z", GoVersion:"go1.9.3", Compiler:"gc", Platform:"linux/amd64"}
+Client Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-04T04:48:03Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"darwin/amd64"}
+Server Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.2", GitCommit:"cff46ab41ff0bb44d8584413b598ad8360ec1def", GitTreeState:"clean", BuildDate:"2019-01-10T23:28:14Z", GoVersion:"go1.11.4", Compiler:"gc", Platform:"linux/amd64"}
 ----
 and if needed, point kubectl back at minikube with "kubectl config use-context minikube"
 
@@ -170,9 +164,11 @@ $ kubectl get pod --all-namespaces
 ----
 $ minikube docker-env
 export DOCKER_TLS_VERIFY="1"
-export DOCKER_HOST="tcp://192.168.99.103:2376"
-export DOCKER_CERT_PATH="/Users/burrsutter/minikube_0.28.1/bin/.minikube/certs"
+export DOCKER_HOST="tcp://192.168.99.108:2376"
+export DOCKER_CERT_PATH="/Users/burrsutter/minikube_0.33.1/bin/.minikube/certs"
 export DOCKER_API_VERSION="1.35"
+# Run this command to configure your shell:
+# eval $(minikube docker-env)
 # or
 $ eval $(minikube docker-env)
 # and
