@@ -338,8 +338,4 @@ The challenge with this model is that you have to have the right pod count to ge
 
 The concept of the Canary rollout gets a lot smarter and more interesting with Istio.  You also get the concept of dark launches which allows you to push a change into the production environment, send traffic to the new pod(s) yet no responses are actual sent back to the end-user/client.
 
-See https://bit.ly/istio-tutorial/[bit.ly/istio-tutorial]
-
-
-
-
+See https://bit.ly/istio-tutorial[bit.ly/istio-tutorial]
