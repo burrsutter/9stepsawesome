@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: myboot
-        image: quay.io/burrsutter/myboot         
+        image: quay.io/burrsutter/myboot:v1         
         ports:
           - containerPort: 8080
 
