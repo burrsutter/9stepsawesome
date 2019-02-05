@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: myboot
+  name: myboot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myboot
+  template:
+    metadata:
+      labels:
+        app: myboot
+    spec:
+      containers:
+      - name: myboot
+        image: quay.io/burrsutter/myboot         
+        ports:
+          - containerPort: 8080
+
