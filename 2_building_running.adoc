@@ -106,6 +106,8 @@ $ curl $(minikube ip):8080
 ----
 
 Since the docker container is running "inside" the minikube/minishift VM, you need to use its IP address
+
+
 ctrl-c to terminate the Spring Boot process and its docker container.
 
 
