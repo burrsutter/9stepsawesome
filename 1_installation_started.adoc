@@ -23,6 +23,7 @@ These instructions have NOT been tested well on Windows Bash.
 * Apache Maven (compilation of Java projects)
 * curl, tar
 * Homebrew for Mac - "brew install stern"
+* brew install kubectx # includes kubens
 * minikube and/or minishift will be downloaded below
 * kubectl and/or oc will be downloaded below
 
@@ -43,7 +44,7 @@ https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 Download & Install Minikube Cluster
 [source,bash]
 ----
-$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.33.1/minikube-darwin-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.35.0/minikube-darwin-amd64
 $ chmod +x minikube 
 # or
 $ brew cask install minikube
@@ -70,14 +71,14 @@ Note: "minikube" should be interchangeable with "minishift" in the instructions 
 ----
 #!/bin/bash
 
-export MINIKUBE_HOME=/Users/burrsutter/minikube_0.33.1/bin;
+export MINIKUBE_HOME=/Users/burrsutter/minikube_0.35.0/bin;
 export PATH=$MINIKUBE_HOME:$PATH
 ----
 
 [source,bash]
 ----
 $ minikube version
-minikube version: v0.33.1
+minikube version: v0.35.0
 # or
 $ minishift version
 minishift v1.30.0+186b034
@@ -91,18 +92,23 @@ minishift v1.30.0+186b034
 minikube config set memory 6144
 minikube config set cpus 2 <1>
 minikube config set vm-driver virtualbox #hyperkit <2>
-# minishift addon enable admin-user <3>
-# minishift addon enable anyuid <4>
-minikube start
+minikube config set kubernetes-version v1.12.0 <3>
+# minishift addon enable admin-user <4> 
+# minishift addon enable anyuid <5>
+minikube start -p 9steps <6>
 ----
 <1> I use 2 cpus here because I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
 There is nothing in this series of exercises that is CPU intensive but minishift has a 10 pod per core limit.
 <2> I use virtualbox because it is available on all platforms.  There a number of hypervisor options
 https://kubernetes.io/docs/tasks/tools/install-minikube/#install-a-hypervisor
-<3> Minishift is secured by default, this creates an cluster "admin" user
 
-<4> A mechanism on OpenShift that allows the execution of an image with any user id, including root.
+<3> Setting the Kubernetes version explicitly so you know what you are getting
+
+<4> Minishift is secured by default, this creates an cluster "admin" user
+<5> A mechanism on OpenShift that allows the execution of an image with any user id, including root.
 https://github.com/burrsutter/9stepsawesome/issues/3
+
+<6> Profiles are somewhat new in minikube land.  These allow you to more easily switch between versions of Kubernetes as well as configurations involving Istio and/or Knative
 
 .VirtualBox UI
 image::virtualbox_ui.png[VirtualBox]
@@ -110,19 +116,19 @@ image::virtualbox_ui.png[VirtualBox]
 
 === Check status, IP & Dashboard/Console
 ----
-$ minikube config view
+$ minikube -p 9steps config view
 - cpus: 2
 - memory: 6144
 - vm-driver: virtualbox
-$ minikube status
+$ minikube -p 9steps status
 minikube: Running
 cluster: Running
 kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.103
-$ minikube ip
+$ minikube -p 9steps ip
 192.168.99.103
 $ minikube dashboard --url
 http://192.168.99.103:30000
-$ minikube dashboard
+$ minikube -p 9steps dashboard
 ----
 
 .minikube dashboard
@@ -136,13 +142,14 @@ image::openshift_dashboard.png[Minishift Dashboard]
 === Check your kubectl CLI
 ----
 $ kubectl config current-context
-minikube
+9steps
 # or in the case of minishift
 # /192-168-99-102:8443/admin
 
 $ kubectl version
 Client Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-04T04:48:03Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"darwin/amd64"}
-Server Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.2", GitCommit:"cff46ab41ff0bb44d8584413b598ad8360ec1def", GitTreeState:"clean", BuildDate:"2019-01-10T23:28:14Z", GoVersion:"go1.11.4", Compiler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"12", GitVersion:"v1.12.0", GitCommit:"0ed33881dc4355495f623c6f22e7dd0b7632b7c0", GitTreeState:"clean", BuildDate:"2018-09-27T16:55:41Z", GoVersion:"go1.10.4", Compiler:"gc", Platform:"linux/amd64"}
+
 ----
 and if needed, point kubectl back at minikube with "kubectl config use-context minikube"
 
@@ -162,19 +169,20 @@ $ kubectl get pod --all-namespaces
 
 === Configure Env for Docker 
 ----
-$ minikube docker-env
+$ minikube -p 9steps docker-env <1>
 export DOCKER_TLS_VERIFY="1"
 export DOCKER_HOST="tcp://192.168.99.108:2376"
 export DOCKER_CERT_PATH="/Users/burrsutter/minikube_0.33.1/bin/.minikube/certs"
 export DOCKER_API_VERSION="1.35"
 # Run this command to configure your shell:
-# eval $(minikube docker-env)
+# eval $(minikube -p 9steps docker-env)
 # or
-$ eval $(minikube docker-env)
+$ eval $(minikube -p 9steps docker-env)
 # and
-# eval $(minishift oc-env) <1>
+# eval $(minishift oc-env) <2>
 ----
-<1> This command puts the "oc" CLI tool in your PATH
+<1> This command allows configure your "docker" CLI tool against your minikube or minishift's Docker daemon.  If you are using GKE, AKS, EKS or other, then you will need to "docker push" your image to that platform's favorite image registry. You can also use quay.io as a vendor neutral registry 
+<2> This command puts the "oc" CLI tool in your PATH
 
 === Using Docker CLI 
 ----
@@ -186,7 +194,7 @@ These commands should now be pulling from your minikube/minishift hosted docker 
 
 === Minikube/Minishift Happy?
 ----
-$ minikube ssh <1>
+$ minikube -p 9steps ssh <1>
 $ free -h
 $ df -h
 $ top
@@ -252,10 +260,10 @@ kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP           1h
 
 You can find the Service's URL 
 ----
-$ minikube service hello-minikube --url
+$ minikube -p 9steps service hello-minikube --url
 http://192.168.99.103:32403
 # and curl it
-$ curl $(minikube service hello-minikube --url)
+$ curl $(minikube -9steps service hello-minikube --url)
 ----
 or just load up the URL in your favorite browser
 https://screencast.com/t/k5GVJlfg
@@ -331,24 +339,24 @@ Use Ctrl-c to stop watching pods
 
 You can shutdown the VM to save resources when not in use
 ----
-$ minikube stop
+$ minikube -p 9steps stop
 # go about your business, come back later and
-$ minikube start
+$ minikube -p 9steps start
 ----
 
 and if you need to wipe out the VM entirely
 ----
-$ minikube delete
+$ minikube -p 9steps delete
 ----
 
 Your minikube configuration goes in a hidden directory at
 ----
-$MINIKUBE_HOME/.minikube/machines/minikube/config.json 
+$ cat $MINIKUBE_HOME/.minikube/profiles/9steps/config.json
 ----
 
 and your kubectl configuration goes in a different hidden directory at
 ----
-$HOME/.kube/config
+$ cat $HOME/.kube/config
 ----
 and if things go really badly, you might need to wipe out those directories
 ----
