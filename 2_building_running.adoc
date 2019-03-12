@@ -72,7 +72,7 @@ include::kubefiles/myspace-namespace.yml[]
 You can confirm your context with
 ----
 $ kubectl config view --minify --template '{{ index .contexts 0 "context" "namespace" }}'
-# of if you are using minishift and oc then there is a handy shortcut
+# or if you are using minishift and oc then there is a handy shortcut
 $ oc project
 # or you can use kubens tool which comes with kubectx (brew install kubectx)
 $ kubens
