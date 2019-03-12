@@ -54,7 +54,7 @@ Your objects should be created via a file that can be checked into source contro
 
 ----
 $ kubectl create -f kubefiles/myspace-namespace.yml # <1>
-$ kubectl config set-context minikube --namespace=myspace # <2>
+$ kubectl config set-context 9steps --namespace=myspace # <2>
 # or if you are using minishift and oc, there is a shortcut
 $ oc project myspace
 # or if you installed kubectx, try
@@ -91,6 +91,8 @@ $ java -jar target/boot-demo-0.0.1.jar
 $ curl localhost:8080
 ----
 
+Note: You can also just use the image directly from Quay.io https://quay.io/repository/burrsutter/myboot?tab=tags
+
 Next create the docker image, first double check that you are still connected to the correct Docker daemon
 
 ----
@@ -100,9 +102,11 @@ $ docker build -t 9stepsawesome/myboot:v1 .
 
 Test that docker image
 ----
-$ minikube ip
+$ minikube -p 9steps ip
 $ docker run -it -p 8080:8080 9stepsawesome/myboot:v1 
-$ curl $(minikube ip):8080
+# OR
+# docker run -it -p 8080:8080 quay.io/burrsutter/myboot:v1
+$ curl $(minikube -p 9steps ip):8080
 ----
 
 Since the docker container is running "inside" the minikube/minishift VM, you need to use its IP address
@@ -145,7 +149,7 @@ $ kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}"
 
 Curl that url + nodePort
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+$ curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
 ----
 
 Perhaps build a little loop to curl that endpoint
@@ -184,6 +188,9 @@ $ kubectl edit deployment/myboot
 esc-w-q
 ----
 
+Note: You can use VS Code as your editor with export KUBE_EDITOR="code -w"
+
+
 You can then use "kubectl get pods" to see the pods that have been created
 ----
 $ kubectl get pods
@@ -191,7 +198,7 @@ $ kubectl get pods
 
 Note: 3 pods might push you out of your memory limits for your VM.  Check your memory usage with:
 ----
-$ minishift ssh
+$ minishift -p 9steps ssh
 # or
 $ minikube ssh
 $ free -m
