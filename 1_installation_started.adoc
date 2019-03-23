@@ -263,7 +263,7 @@ You can find the Service's URL
 $ minikube -p 9steps service hello-minikube --url
 http://192.168.99.103:32403
 # and curl it
-$ curl $(minikube -9steps service hello-minikube --url)
+$ curl $(minikube -p 9steps service hello-minikube --url)
 ----
 or just load up the URL in your favorite browser
 https://screencast.com/t/k5GVJlfg
