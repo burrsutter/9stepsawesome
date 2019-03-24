@@ -157,7 +157,7 @@ Perhaps build a little loop to curl that endpoint
 ----
 while true
 do 
-  curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+  curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
   sleep .5;
 done
 ----
