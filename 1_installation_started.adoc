@@ -126,7 +126,7 @@ cluster: Running
 kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.103
 $ minikube -p 9steps ip
 192.168.99.103
-$ minikube dashboard --url
+$ minikube -p 9steps dashboard --url
 http://192.168.99.103:30000
 $ minikube -p 9steps dashboard
 ----
