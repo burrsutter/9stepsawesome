@@ -299,7 +299,7 @@ $ kubectl get pods -w
 
 and now curl the consume endpoint
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
+$ curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
 ----
 
 and you should see a OOMKilled
