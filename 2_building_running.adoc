@@ -288,7 +288,7 @@ $ kubectl replace -f kubefiles/myboot-deployment-resources.yml
 
 Curl sysresources again
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+$ curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
 Memory: 1324 Cores: 2
 ----
 
