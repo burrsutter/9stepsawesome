@@ -157,7 +157,7 @@ Perhaps build a little loop to curl that endpoint
 ----
 while true
 do 
-  curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+  curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
   sleep .5;
 done
 ----
@@ -288,7 +288,7 @@ $ kubectl replace -f kubefiles/myboot-deployment-resources.yml
 
 Curl sysresources again
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+$ curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
 Memory: 1324 Cores: 2
 ----
 
@@ -299,7 +299,7 @@ $ kubectl get pods -w
 
 and now curl the consume endpoint
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
+$ curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
 ----
 
 and you should see a OOMKilled
