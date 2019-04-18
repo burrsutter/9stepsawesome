@@ -89,10 +89,12 @@ minishift v1.33.0+ba29431
 ----
 #!/bin/bash
 
+# minishift profile set 9steps
 minikube --profile 9steps config set memory 6144
 minikube --profile 9steps config set cpus 2 <1>
 minikube --profile 9steps config set vm-driver virtualbox #hyperkit <2>
-minikube --profile 9steps config set kubernetes-version v1.12.0 <3>
+# kubernetes version only applies to minikube
+minikube --profile 9steps config set kubernetes-version v1.13.0 <3>
 # minishift addon enable admin-user <4> 
 # minishift addon enable anyuid <5>
 minikube start --profile 9steps <6>
@@ -102,7 +104,7 @@ There is nothing in this series of exercises that is CPU intensive but minishift
 <2> I use virtualbox because it is available on all platforms.  There a number of hypervisor options
 https://kubernetes.io/docs/tasks/tools/install-minikube/#install-a-hypervisor
 
-<3> Setting the Kubernetes version explicitly so you know what you are getting
+<3> Setting the Kubernetes version explicitly so you know what you are getting, only applies to minikube
 
 <4> Minishift is secured by default, this creates an cluster "admin" user
 <5> A mechanism on OpenShift that allows the execution of an image with any user id, including root.
@@ -116,19 +118,19 @@ image::virtualbox_ui.png[VirtualBox]
 
 === Check status, IP & Dashboard/Console
 ----
-$ minikube -p 9steps config view
+$ minikube --profile 9steps config view
 - cpus: 2
 - memory: 6144
 - vm-driver: virtualbox
-$ minikube -p 9steps status
+$ minikube --profile 9steps status
 minikube: Running
 cluster: Running
 kubectl: Correctly Configured: pointing to minikube-vm at 192.168.99.103
-$ minikube -p 9steps ip
+$ minikube --profile 9steps ip
 192.168.99.103
-$ minikube -p 9steps dashboard --url
+$ minikube --profile 9steps dashboard --url
 http://192.168.99.103:30000
-$ minikube -p 9steps dashboard
+$ minikube --profile 9steps dashboard
 ----
 
 .minikube dashboard
@@ -144,7 +146,7 @@ image::openshift_dashboard.png[Minishift Dashboard]
 $ kubectl config current-context
 9steps
 # or in the case of minishift
-# /192-168-99-102:8443/admin
+# myproject/192-168-99-102:8443/admin
 
 $ kubectl version
 Client Version: version.Info{Major:"1", Minor:"13", GitVersion:"v1.13.3", GitCommit:"721bfa751924da8d1680787490c54b9179b1fed0", GitTreeState:"clean", BuildDate:"2019-02-04T04:48:03Z", GoVersion:"go1.11.5", Compiler:"gc", Platform:"darwin/amd64"}
@@ -169,15 +171,15 @@ $ kubectl get pod --all-namespaces
 
 === Configure Env for Docker 
 ----
-$ minikube -p 9steps docker-env <1>
+$ minikube --profile 9steps docker-env <1>
 export DOCKER_TLS_VERIFY="1"
 export DOCKER_HOST="tcp://192.168.99.108:2376"
 export DOCKER_CERT_PATH="/Users/burrsutter/minikube_0.33.1/bin/.minikube/certs"
 export DOCKER_API_VERSION="1.35"
 # Run this command to configure your shell:
-# eval $(minikube -p 9steps docker-env)
+# eval $(minikube --profile 9steps docker-env)
 # or
-$ eval $(minikube -p 9steps docker-env)
+$ eval $(minikube --profile 9steps docker-env)
 # and
 # eval $(minishift oc-env) <2>
 ----
@@ -194,7 +196,7 @@ These commands should now be pulling from your minikube/minishift hosted docker 
 
 === Minikube/Minishift Happy?
 ----
-$ minikube -p 9steps ssh <1>
+$ minikube --profile 9steps ssh <1>
 $ free -h
 $ df -h
 $ top
@@ -208,7 +210,7 @@ $ exit
 Minishift is secured by default and requires you to login
 
 ----
-$ oc login $(minishift ip):8443 -u admin -p admin
+$ oc login $(minishift --profile ip):8443 -u admin -p admin
 ----
 
 The "default" namespace should already be the current context, but setting it here to make it obvious
@@ -216,7 +218,8 @@ The "default" namespace should already be the current context, but setting it he
 ----
 $ kubectl config set-context $(kubectl config current-context) --namespace=default
 # or
-$ kubens default #kubens comes with the kubectx tool
+$ kubens default 
+# kubens comes with the kubectx tool
 ----
 
 The command "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production
@@ -260,10 +263,10 @@ kubernetes       ClusterIP   10.96.0.1       <none>        443/TCP           1h
 
 You can find the Service's URL 
 ----
-$ minikube -p 9steps service hello-minikube --url
+$ minikube --profile 9steps service hello-minikube --url
 http://192.168.99.103:32403
 # and curl it
-$ curl $(minikube -p 9steps service hello-minikube --url)
+$ curl $(minikube --profile 9steps service hello-minikube --url)
 ----
 or just load up the URL in your favorite browser
 https://screencast.com/t/k5GVJlfg
@@ -339,28 +342,36 @@ Use Ctrl-c to stop watching pods
 
 You can shutdown the VM to save resources when not in use
 ----
-$ minikube -p 9steps stop
+$ minikube --profile 9steps stop
 # go about your business, come back later and
-$ minikube -p 9steps start
+$ minikube --profile 9steps start
 ----
 
 and if you need to wipe out the VM entirely
 ----
-$ minikube -p 9steps delete
+$ minikube --profile 9steps delete
 ----
 
 Your minikube configuration goes in a hidden directory at
 ----
-$ cat $MINIKUBE_HOME/.minikube/profiles/9steps/config.json
+$ ls $MINIKUBE_HOME/.minikube/profiles/9steps/
 ----
 
-and your kubectl configuration goes in a different hidden directory at
+and your kubectl configuration goes in a different hidden directory that is normally at
 ----
 $ cat $HOME/.kube/config
 ----
-and if things go really badly, you might need to wipe out those directories
+
+BUT, based on the change in the 0_setenv_minikube.sh, this directory has been moved, helping to keep your various minikube world's separated
+----
+export KUBECONFIG=$MINIKUBE_HOME/.kube/config
+----
+
+So if things go really badly, you might need to wipe out those directories
 ----
 $ rm -rf ~/.kube
+# OR
+$ rm -rf $MINIKUBE_HOME/.kube/config
 $ rm -rf $MINIKUBE_HOME/.minikube
 ----
 
