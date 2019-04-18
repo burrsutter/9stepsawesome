@@ -14,3 +14,4 @@ echo
 echo 'Trying Kui'
 echo 'curl -sL https://tarball.kui-shell.org | tar jxf -'
 export PATH=$MINIKUBE_HOME/kui/bin:$PATH
+echo 'kui shell'
