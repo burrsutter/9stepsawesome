@@ -4,7 +4,7 @@ python --version
 Python 2.7.15
 
 pip --version
-pip 9.0.3
+pip 19.0.3
 
 pip install --no-cache-dir -r requirements.txt
 

@@ -32,7 +32,7 @@ Download & Install Kubernetes CLI
 [source,bash]
 ----
 # MacOS
-$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.13.0/bin/darwin/amd64/kubectl 
+$ curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.0/bin/darwin/amd64/kubectl 
 # 
 $ chmod +x kubectl
 # or
@@ -44,7 +44,7 @@ https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 Download & Install Minikube Cluster
 [source,bash]
 ----
-$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.35.0/minikube-darwin-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-darwin-amd64
 $ chmod +x minikube 
 # or
 $ brew cask install minikube
@@ -58,8 +58,8 @@ OR
 Download & Install Minishift Cluster
 [source,bash]
 ----
-$ curl -LO https://github.com/minishift/minishift/releases/download/v1.30.0/minishift-1.30.0-darwin-amd64.tgz
-$ tar -xvf minishift-1.30.0-darwin-amd64.tgz 
+$ curl -LO https://github.com/minishift/minishift/releases/download/v1.33.0/minishift-1.33.0-darwin-amd64.tgz
+$ tar -xvf minishift-1.33.0-darwin-amd64.tgz 
 ----
 More Minishift releases https://github.com/minishift/minishift/releases
 
@@ -71,17 +71,17 @@ Note: "minikube" should be interchangeable with "minishift" in the instructions 
 ----
 #!/bin/bash
 
-export MINIKUBE_HOME=/Users/burrsutter/minikube_0.35.0/bin;
+export MINIKUBE_HOME=/Users/burrsutter/minikube_1.0.0/bin;
 export PATH=$MINIKUBE_HOME:$PATH
 ----
 
 [source,bash]
 ----
 $ minikube version
-minikube version: v0.35.0
+minikube version: v1.0.0
 # or
 $ minishift version
-minishift v1.30.0+186b034
+minishift v1.33.0+ba29431
 ----
 
 === Create the VM
@@ -89,13 +89,13 @@ minishift v1.30.0+186b034
 ----
 #!/bin/bash
 
-minikube config set memory 6144
-minikube config set cpus 2 <1>
-minikube config set vm-driver virtualbox #hyperkit <2>
-minikube config set kubernetes-version v1.12.0 <3>
+minikube --profile 9steps config set memory 6144
+minikube --profile 9steps config set cpus 2 <1>
+minikube --profile 9steps config set vm-driver virtualbox #hyperkit <2>
+minikube --profile 9steps config set kubernetes-version v1.12.0 <3>
 # minishift addon enable admin-user <4> 
 # minishift addon enable anyuid <5>
-minikube start -p 9steps <6>
+minikube start --profile 9steps <6>
 ----
 <1> I use 2 cpus here because I have 6 core laptop.  Keep this number at or below 50% of overall laptop resources.
 There is nothing in this series of exercises that is CPU intensive but minishift has a 10 pod per core limit.
