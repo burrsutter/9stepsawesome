@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: myquarkus
+  name: myquarkus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myquarkus
+  template:
+    metadata:
+      labels:
+        app: myquarkus
+    spec:
+      containers:
+      - name: myquarkus
+        image: quay.io/burrsutter/quarkus-demo:1.0.0
+        ports:
+          - containerPort: 8080
+        resources:
+          requests: 
+            memory: "50Mi" 
+            cpu: "250m" # 1/4 core
+          limits:
+            memory: "50Mi"
+            cpu: "250m" 
+        livenessProbe:
+          httpGet:
+              port: 8080
+              path: /
+          initialDelaySeconds: 1
+          periodSeconds: 5
+          timeoutSeconds: 2          
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 3
+

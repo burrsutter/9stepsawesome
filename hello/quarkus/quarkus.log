@@ -1,0 +1,33 @@
+2019-03-03 11:55:45,802 burr quarkus-0.0.1-runner[78832] INFO  [io.quarkus] (main) Quarkus 1.0.0.Alpha1-SNAPSHOT started in 0.008s. Listening on: http://localhost:8080
+2019-03-03 11:55:45,804 burr quarkus-0.0.1-runner[78832] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-03-03 11:55:54,755 burr quarkus-0.0.1-runner[78832] INFO  [io.quarkus] (main) Quarkus stopped in 0.000s
+2019-03-03 11:56:03,885 burr quarkus-0.0.1-runner[78872] INFO  [io.quarkus] (main) Quarkus 1.0.0.Alpha1-SNAPSHOT started in 0.010s. Listening on: http://localhost:8080
+2019-03-03 11:56:03,886 burr quarkus-0.0.1-runner[78872] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-03-03 11:56:51,692 burr quarkus-0.0.1-runner[78872] INFO  [io.quarkus] (main) Quarkus stopped in 0.011s
+2019-03-03 11:56:55,493 burr quarkus-0.0.1-runner[78982] INFO  [io.quarkus] (main) Quarkus 1.0.0.Alpha1-SNAPSHOT started in 0.008s. Listening on: http://localhost:8080
+2019-03-03 11:56:55,494 burr quarkus-0.0.1-runner[78982] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-03-03 11:58:28,082 burr quarkus-0.0.1-runner[78982] INFO  [io.quarkus] (main) Quarkus stopped in 0.000s
+2019-03-09 13:00:26,616 burr quarkus-0.0.1-runner.jar[96562] DEBUG [org.xnio] (main) XNIO version 3.6.5.Final
+2019-03-09 13:00:26,666 burr quarkus-0.0.1-runner.jar[96562] DEBUG [org.xni.nio] (main) XNIO NIO Implementation Version 3.6.5.Final
+2019-03-09 13:00:26,786 burr quarkus-0.0.1-runner.jar[96562] DEBUG [org.jbo.threads] (main) JBoss Threads version 3.0.0.Alpha4
+2019-03-09 13:05:18,555 burr quarkus-0.0.1-runner.jar[96818] DEBUG [org.xnio] (main) XNIO version 3.6.5.Final
+2019-03-09 13:05:18,606 burr quarkus-0.0.1-runner.jar[96818] DEBUG [org.xni.nio] (main) XNIO NIO Implementation Version 3.6.5.Final
+2019-03-09 13:05:18,725 burr quarkus-0.0.1-runner.jar[96818] DEBUG [org.jbo.threads] (main) JBoss Threads version 3.0.0.Alpha4
+2019-03-09 13:05:18,792 burr quarkus-0.0.1-runner.jar[96818] INFO  [io.quarkus] (main) Quarkus 1.0.0.Alpha1-SNAPSHOT started in 0.846s. Listening on: http://127.0.0.1:8080
+2019-03-09 13:05:18,795 burr quarkus-0.0.1-runner.jar[96818] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-03-09 13:05:28,004 burr quarkus-0.0.1-runner.jar[96818] INFO  [io.quarkus] (main) Quarkus stopped in 0.008s
+2019-03-12 11:36:22,841 burr quarkus-0.0.1-runner.jar[19144] DEBUG [org.xnio] (main) XNIO version 3.6.5.Final
+2019-03-12 11:36:22,892 burr quarkus-0.0.1-runner.jar[19144] DEBUG [org.xni.nio] (main) XNIO NIO Implementation Version 3.6.5.Final
+2019-03-12 11:36:23,011 burr quarkus-0.0.1-runner.jar[19144] DEBUG [org.jbo.threads] (main) JBoss Threads version 3.0.0.Alpha4
+2019-03-12 11:36:23,087 burr quarkus-0.0.1-runner.jar[19144] INFO  [io.quarkus] (main) Quarkus 0.11.0 started in 0.653s. Listening on: http://127.0.0.1:8080
+2019-03-12 11:36:23,089 burr quarkus-0.0.1-runner.jar[19144] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-03-12 11:36:31,212 burr quarkus-0.0.1-runner.jar[19144] INFO  [io.quarkus] (main) Quarkus stopped in 0.007s
+2019-03-12 11:46:27,414 burr quarkus-0.0.1-runner[19954] INFO  [io.quarkus] (main) Quarkus 0.11.0 started in 0.011s. Listening on: http://127.0.0.1:8080
+2019-03-12 11:46:27,417 burr quarkus-0.0.1-runner[19954] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-03-12 11:46:34,621 burr quarkus-0.0.1-runner[19954] INFO  [io.quarkus] (main) Quarkus stopped in 0.000s
+2019-04-19 09:10:58,607 burr quarkus-demo-1.0.0-runner.jar[83274] DEBUG [org.xnio] (main) XNIO version 3.7.0.Final
+2019-04-19 09:10:58,646 burr quarkus-demo-1.0.0-runner.jar[83274] DEBUG [org.xni.nio] (main) XNIO NIO Implementation Version 3.7.0.Final
+2019-04-19 09:10:58,756 burr quarkus-demo-1.0.0-runner.jar[83274] DEBUG [org.jbo.threads] (main) JBoss Threads version 3.0.0.Alpha4
+2019-04-19 09:10:58,823 burr quarkus-demo-1.0.0-runner.jar[83274] INFO  [io.quarkus] (main) Quarkus 0.12.0 started in 0.683s. Listening on: http://[::]:8080
+2019-04-19 09:10:58,825 burr quarkus-demo-1.0.0-runner.jar[83274] INFO  [io.quarkus] (main) Installed features: [cdi, resteasy]
+2019-04-19 09:11:08,696 burr quarkus-demo-1.0.0-runner.jar[83274] INFO  [io.quarkus] (main) Quarkus stopped in 0.007s
