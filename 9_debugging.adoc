@@ -3,6 +3,9 @@ Burr Sutter <burrsuter@gmail.com>
 
 == Java
 
+https://blog.christianposta.com/kubernetes/java-remote-debug-for-applications-running-in-kubernetes/
+
+
 https://hub.docker.com/r/fabric8/java-jboss-openjdk8-jdk/
 
 https://maven.fabric8.io/#fabric8:debug
