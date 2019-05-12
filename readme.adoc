@@ -21,4 +21,4 @@ include::7_live_ready.adoc[Step 7: Live and Ready]
 
 include::8_deployment_techniques.adoc[Step 8: Deployment Techniques: Blue/Green, Canary]
 
-include::9_debugging.adoc[Step 9: Debugging]
+include::9_databases.adoc[Step 9: Databases]
