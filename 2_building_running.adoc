@@ -261,13 +261,13 @@ $ kubectl scale --replicas=1 deployment/myboot
 
 Hit the sysresources endpoint
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+$ curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
  Memory: 1324 Cores: 2
 ----
 
 Note: you can use echo to see what this URL really looks like on your machine
 ----
-$ echo $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+$ echo $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
 192.168.99.105:30479/sysresources
 ----
 
