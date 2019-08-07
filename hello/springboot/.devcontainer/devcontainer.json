@@ -1,0 +1,9 @@
+{
+	"name": "Spring Boot Sample",
+	"dockerFile": "Dockerfile",
+	"appPort": "8080",
+	 "extensions": [
+	 	"vscjava.vscode-java-pack",
+		 "redhat.vscode-xml",
+	 ]
+}
