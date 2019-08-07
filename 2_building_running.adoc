@@ -102,17 +102,16 @@ $ docker build -t 9stepsawesome/myboot:v1 .
 
 Test that docker image
 ----
-$ minikube -p 9steps ip
-$ docker run -it -p 8080:8080 9stepsawesome/myboot:v1 
+$ docker run -d -p 8080:8080 --name myboot 9stepsawesome/myboot:v1 
 # OR
-# docker run -it -p 8080:8080 quay.io/burrsutter/myboot:v1
-$ curl $(minikube -p 9steps ip):8080
+# docker run -d -p 8080:8080 --name myboot quay.io/burrsutter/myboot:v1
+# wait for container to come up <1>
+$ curl $(minikube -p 9steps ip):8080 <2>
+# If working, you can stop the container with
+$ docker stop myboot
 ----
-
-Since the docker container is running "inside" the minikube/minishift VM, you need to use its IP address
-
-
-ctrl-c to terminate the Spring Boot process and its docker container.
+<1> You can check the status of the container from another window using the command: docker logs -f myboot 
+<2> Since the docker container is running "inside" the minikube/minishift VM, you need to use its IP address
 
 
 == Deployment
