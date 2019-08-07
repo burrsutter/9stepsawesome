@@ -2,7 +2,7 @@ FROM openjdk:8u151
 ENV JAVA_APP_JAR boot-demo-0.0.1.jar
 
 ## Ensure maven is installed
-RUN apt-get update && apt-get install maven
+RUN apt-get update -y && apt-get install maven -y
 
 WORKDIR /app/
 EXPOSE 8080
