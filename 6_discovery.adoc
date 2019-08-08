@@ -31,7 +31,7 @@ $ kubectl get all -n yourspace
 Now invoke the "callinganother" endpoint on the myboot service
 ----
 $ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}" -n myspace)/callinganother
-Hello from Node.js! 0 on mynode-68b9b9ffcc-wspxf
+Node Hello on mynode-7dc8bddd4d-spv5h 0
 ----
 
 The magic is simply knowing the correct URL
@@ -57,9 +57,9 @@ and now invoke the "callinganother" again and again
 [source,bash]
 ----
 $ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/callinganother
-Hello from Node.js! 4 on mynode-68b9b9ffcc-4kkg5
+Node Hello on mynode-7dc8bddd4d-spv5h 4 
 $ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/callinganother
-Hello from Node.js! 1 on mynode-68b9b9ffcc-wspxf
+Node Hello on mynode-7dc8bddd4d-6gb8j 1
 ----
 
 If you wish to update the Node.js endpoint code, just remember the -n yourspace parameter
