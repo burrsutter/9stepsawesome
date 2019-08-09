@@ -46,7 +46,7 @@ postgres-pv   2Gi        RWO            Retain           Available             m
 $ kubectl create -f kubefiles/postgres-pvc.yml
 $ kubectl get pv/postgres-pv
 NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM               STORAGECLASS   REASON    AGE
-postgres-pv   2Gi        RWO            Retain           Bound     demo/postgres-pvc   mystorage                49s
+postgres-pv   2Gi        RWO            Retain           Bound     myspace/postgres-pvc   mystorage                49s
 
 $ kubectl get pvc/postgres-pvc
 NAME           STATUS    VOLUME        CAPACITY   ACCESS MODES   STORAGECLASS   AGE
