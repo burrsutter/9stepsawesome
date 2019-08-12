@@ -75,14 +75,15 @@ image::pgadmin_add_server.png[pgAdmin Add Server]
 .pgAdmin Add Server 2
 image::pgadmin_add_server2.png[pgAdmin Add Server 2]
 
-Tools -> Query Tool
+
+Select Tools -> Query Tool and write and execute the following footnote:[You may need to execute the command line by line and not all at once]
 
 [source,sql]
 ----
 CREATE ROLE myuser WITH LOGIN PASSWORD 'mypassword';
 ALTER ROLE myuser CREATEDB;
 CREATE DATABASE mydb;
-ALTER DATABASE mydb owner to "myuser"
+ALTER DATABASE mydb owner to "myuser";
 ----
 
 Note: You can also run psql CLI from within the Postgres Pod
