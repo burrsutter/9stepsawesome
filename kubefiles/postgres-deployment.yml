@@ -26,7 +26,7 @@ spec:
         volumeMounts:
           # mountPath within the container
         - name: postgres-pvc
-          mountPath: "/var/lib/postgresql/data/"          
+          mountPath: "/var/lib/postgresql/data/:Z"          
       volumes:
           # mapped to the PVC
         - name: postgres-pvc
