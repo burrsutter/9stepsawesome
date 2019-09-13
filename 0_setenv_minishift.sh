@@ -10,7 +10,3 @@ export KUBE_EDITOR="code -w"
 
 echo 'the following after minikube as started'
 echo 'eval $(minishift --profile 9steps docker-env)'
-echo 
-echo 'Trying Kui'
-echo 'curl -sL https://tarball.kui-shell.org | tar jxf -'
-export PATH=$MINISHIFT_HOME/kui/bin:$PATH
