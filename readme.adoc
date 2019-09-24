@@ -1,9 +1,9 @@
 = Main Readme
-Slides for 9 Steps to Awesome with Kubernetes at
 
-http://bit.ly/9stepsawesome[bit.ly/9stepsawesome]
 
-Details in the individual steps below
+Slides for 9 Steps to Awesome with Kubernetes at http://bit.ly/9stepsawesome[bit.ly/9stepsawesome]
+
+=== Follow Steps 1 through 9 Below
 
 include::1_installation_started.adoc[Step 1: Installation & Getting Started]
 
@@ -19,6 +19,6 @@ include::6_discovery.adoc[Step 6: Service Discovery & Load-balancing]
 
 include::7_live_ready.adoc[Step 7: Live and Ready]
 
-include::8_deployment_techniques.adoc[Step 8: Deployment Techniques: Blue/Green, Canary]
+include::8_deployment_techniques.adoc[Step 8: Deployment Techniques: Blue/Green]
 
 include::9_databases.adoc[Step 9: Databases]
