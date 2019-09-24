@@ -174,13 +174,19 @@ To leave this pod, simply type "exit" and hit enter
 $ exit 
 ----
 
-You can now either manually set -Xmx or use the experimental flags for JVM startup.
+You can now either manually set -Xmx or use the experimental flags for JVM startup.  We will be able to do this by creating a new version of the container for our myboot deployment.
 
-A Dockerfile with the memory settings is provided
+A Dockerfile called "Dockerfile_Memory" with the memory settings we need has been provided already in the hello/springboot directory.
 ----
-$ docker build -f Dockerfile_Memory -t 9stepsawesome/myboot:v2 .
-# and delete an pods based on that image
+$ docker build -f Dockerfile_Memory -t 9stepsawesome/myboot:v2 . <1>
+# delete any pods based on that image
 $ kubectl delete pods -l app=myboot
+----
+<1> _For this to work, your myboot deployment must be looking for an image of this name and version.  If you came here from step 2 then you might have left your deployment rolled back and pointing to v1 (causing the creation of this new image to be ignored).  Here's how you check and update:_
+----
+$ echo $(kubectl get deployment/myboot -o jsonpath="{.spec.template.spec.containers[*].image}")
+9stepsawesome/myboot:v1
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
 ----
 
 Wait a moment for the pod to be recreated from the new image then

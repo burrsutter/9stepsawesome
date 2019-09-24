@@ -46,7 +46,7 @@ postgres-pv   2Gi        RWO            Retain           Available             m
 $ kubectl create -f kubefiles/postgres-pvc.yml
 $ kubectl get pv/postgres-pv
 NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM               STORAGECLASS   REASON    AGE
-postgres-pv   2Gi        RWO            Retain           Bound     demo/postgres-pvc   mystorage                49s
+postgres-pv   2Gi        RWO            Retain           Bound     myspace/postgres-pvc   mystorage                49s
 
 $ kubectl get pvc/postgres-pvc
 NAME           STATUS    VOLUME        CAPACITY   ACCESS MODES   STORAGECLASS   AGE
@@ -67,7 +67,7 @@ Now, make the Postgres port 5432 available at localhost
 $ kubectl port-forward <posgtres-pod> 5432:5432
 ----
 
-Access with pgAdmin https://www.postgresql.org/ftp/pgadmin/pgadmin4/v3.4
+Access with pgAdmin https://www.postgresql.org/ftp/pgadmin/pgadmin4/v3.4 footnote:[Admin login details can be found in the kubefiles/postgres-depoloyment.yml]
 
 .pgAdmin Add Server
 image::pgadmin_add_server.png[pgAdmin Add Server]
@@ -75,14 +75,15 @@ image::pgadmin_add_server.png[pgAdmin Add Server]
 .pgAdmin Add Server 2
 image::pgadmin_add_server2.png[pgAdmin Add Server 2]
 
-Tools -> Query Tool
+
+Select Tools -> Query Tool and write and execute the following footnote:[You may need to execute the command line by line and not all at once]
 
 [source,sql]
 ----
 CREATE ROLE myuser WITH LOGIN PASSWORD 'mypassword';
 ALTER ROLE myuser CREATEDB;
 CREATE DATABASE mydb;
-ALTER DATABASE mydb owner to "myuser"
+ALTER DATABASE mydb owner to "myuser";
 ----
 
 Note: You can also run psql CLI from within the Postgres Pod
