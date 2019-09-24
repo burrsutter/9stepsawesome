@@ -85,6 +85,9 @@ minishift v1.33.0+ba29431
 ----
 
 === Create the VM
+
+_Note: in the example below, the eventual VM that is configured and created is called "9steps".  This name needs to be unique if you want to run both minikube and minishift (such as calling the VM itself "minikube" or "minishift".  See also screenshot below which names the two VMs for the command with which they are used)_ 
+
 [source,bash]
 ----
 #!/bin/bash
@@ -164,10 +167,41 @@ brew install kubectx
 
 === Namespaces & Pods
 ----
-$ kubectl get namespaces
+$ kubectl get namespaces <1>
 
 $ kubectl get pod --all-namespaces
 ----
+<1> Running this command when using minishift will likely result in the following error due to not having admin rights on the openshift cluster.  To login as an admin so that you can execute the following command and login with admin (password: admin)
+----
+Error from server (Forbidden): namespaces is forbidden: User "developer" cannot list namespaces at the cluster scope: no RBAC policy matched
+
+$ oc login $(minishift dashboard --url | sed 's/\/console//')
+Authentication required for https://192.168.99.104:8443 (openshift)
+Username: admin
+Password: admin
+Login successful.
+
+You have access to the following projects and can switch between them with 'oc project <projectname>':
+
+    default
+    kube-dns
+    kube-proxy
+    kube-public
+    kube-system
+  * myproject
+    openshift
+    openshift-apiserver
+    openshift-controller-manager
+    openshift-core-operators
+    openshift-infra
+    openshift-node
+    openshift-service-cert-signer
+    openshift-web-console
+
+Using project "myproject".
+
+----
+
 
 === Configure Env for Docker 
 ----
@@ -362,7 +396,7 @@ and your kubectl configuration goes in a different hidden directory that is norm
 $ cat $HOME/.kube/config
 ----
 
-BUT, based on the change in the 0_setenv_minikube.sh, this directory has been moved, helping to keep your various minikube world's separated
+BUT, based on the change in the 0_setenv_minikube.sh, this directory has been moved, helping to keep your various minikube worlds separated
 ----
 export KUBECONFIG=$MINIKUBE_HOME/.kube/config
 ----
