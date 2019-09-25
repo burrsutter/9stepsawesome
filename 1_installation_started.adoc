@@ -202,6 +202,12 @@ Using project "myproject".
 
 ----
 
+=== Nodes
+A Kubernetes cluster normally consists of 3 Masters and N Workers.  Minikube and Minishift are all-in-one Master+Worker single VMs
+
+----
+$ kubectl get nodes --show-labels
+----
 
 === Configure Env for Docker 
 ----
@@ -256,7 +262,8 @@ $ kubens default
 # kubens comes with the kubectx tool
 ----
 
-The command "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production
+The command "kubectl run" is the fastest way to deploy a pod (think linux container). It is useful during development but NOT recommended for production.  You will receive a deprecation warning.
+
 ----
 $ kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080
 ----
@@ -266,6 +273,11 @@ It produces a Deployment
 $ kubectl get deployments
 NAME             DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
 hello-minikube   1         1         1            1           7s
+----
+
+which produces a ReplicaSet
+----
+$ kubectl get replicaset
 ----
 
 which produces a Pod
@@ -312,6 +324,16 @@ $ minishift openshift service hello-minikube --url
 $ curl $(minishift openshift service hello-minikube --url)
 ----
 
+You can also get the NodePort using jsonpath
+----
+$ kubectl get service hello-minikube -o jsonpath="{.spec.ports[*].nodePort}"
+----
+
+Or using the "jq" (brew install jq) command line tool to parse the JSON is also a very handy trick
+----
+$ kubectl get service hello-minikube -ojson | jq -r '.spec.ports[].nodePort'
+----
+
 The Deployment that was generated via your "kubectl run" commamnd actually has a bunch of interesting defaults
 ----
 $ kubectl describe deployment hello-minikube
@@ -356,6 +378,38 @@ $ kubectl get all
 # or with -n mynamespace
 $ kubectl get all -n default
 ----
+
+----
+$ curl $(minikube --profile 9steps ip):$(kubectl get service hello-minikube -o jsonpath="{.spec.ports[*].nodePort}")
+
+
+Hostname: hello-minikube-56cdb79778-cpbc8
+
+Pod Information:
+	-no pod information available-
+
+Server values:
+	server_version=nginx: 1.13.3 - lua: 10008
+
+Request Information:
+	client_address=172.17.0.1
+	method=GET
+	real path=/
+	query=
+	request_version=1.1
+	request_scheme=http
+	request_uri=http://192.168.99.100:8080/
+
+Request Headers:
+	accept=*/*
+	host=192.168.99.100:32570
+	user-agent=curl/7.54.0
+
+Request Body:
+	-no body in request-
+
+----
+
  
 === Clean up
 ----
@@ -396,7 +450,7 @@ and your kubectl configuration goes in a different hidden directory that is norm
 $ cat $HOME/.kube/config
 ----
 
-BUT, based on the change in the 0_setenv_minikube.sh, this directory has been moved, helping to keep your various minikube worlds separated
+BUT, based on the change in the 0_setenv_minikube.sh, this directory has been moved by setting an env variable, helping to keep your various minikube worlds separated
 ----
 export KUBECONFIG=$MINIKUBE_HOME/.kube/config
 ----
