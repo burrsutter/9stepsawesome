@@ -21,7 +21,7 @@ kube-system   Active    22h
 The -o yaml trick is a great way to see what the command created
 
 ----
-$ kubectl get namespace/demo -o yaml
+$ kubectl get namespace demo -o yaml
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -39,12 +39,12 @@ status:
 
 You can also use the 
 ----
-kubectl get namespace/demo --export -o yaml 
+$ kubectl get namespace/demo --export -o yaml 
 ----
 for something cleaner, something you might store and use later with kubectl apply -f
 
 
-Deleting a Namespace is also available via command
+Deleting a Namespace is also available via command.  Deleting the namespace will remove all other objects that were created within this namespace.
 
 ----
 $ kubectl delete namespace/demo 
@@ -76,10 +76,177 @@ $ kubectl config view --minify --template '{{ index .contexts 0 "context" "names
 $ oc project
 # or you can use kubens tool which comes with kubectx (brew install kubectx)
 $ kubens
-
 ----
 
-== Code
+== Pods
+
+Create a standalone Pod. 
+
+----
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: quarkus-demo
+spec:
+  containers:
+  - name: quarkus-demo
+    image: quay.io/burrsutter/quarkus-demo:1.0.0
+EOF
+----
+
+Delete the Pod
+
+----
+$ kubectl delete pod quarkus-demo
+----
+
+== ReplicaSets
+
+Create a Replica Set
+
+----
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1beta2
+kind: ReplicaSet
+metadata:
+    name: rs-quarkus-demo
+spec:
+    replicas: 3
+    selector:
+       matchLabels:
+          app: quarkus-demo
+    template:
+       metadata:
+          labels:
+             app: quarkus-demo
+             env: dev
+       spec:
+          containers:
+          - name: quarkus-demo
+            image: quay.io/burrsutter/quarkus-demo:1.0.0
+EOF
+----
+
+See what it produced
+
+----
+$ kubectl get pods --show-labels
+NAME                    READY   STATUS    RESTARTS   AGE
+rs-quarkus-demo-mzb6m   1/1     Running   0          10s
+rs-quarkus-demo-rzfs2   1/1     Running   0          10s
+rs-quarkus-demo-zxbhq   1/1     Running   0          10s
+----
+
+Pick a pod and delete it
+----
+$ kubectl delete pod rs-quarkus-demo-rzfs2
+----
+
+and watch a new one spin up to take its place, it will be the youngest
+----
+NAME                    READY   STATUS    RESTARTS   AGE
+rs-quarkus-demo-7f56r   1/1     Running   0          6s
+rs-quarkus-demo-mzb6m   1/1     Running   0          3m
+rs-quarkus-demo-zxbhq   1/1     Running   0          3m
+----
+
+Delete the replicatset
+----
+$ kubectl delete replicaset rs-quarkus-demo
+----
+
+ and watch all pods terminate
+----
+NAME                    READY   STATUS        RESTARTS   AGE
+rs-quarkus-demo-kqbwr   0/1     Terminating   0          1m
+rs-quarkus-demo-trc5t   0/1     Terminating   0          5m
+rs-quarkus-demo-x92s7   0/1     Terminating   0          5m
+----
+
+== Deployments
+
+----
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkus-demo-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: quarkus-demo
+  template:
+    metadata:
+      labels:        
+        app: quarkus-demo
+        env: dev
+    spec:
+      containers:
+      - name: quarkus-demo
+        image: quay.io/burrsutter/quarkus-demo:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+EOF
+----
+
+----
+$ kubectl get pods --show-labels
+NAME                                     READY   STATUS    RESTARTS   AGE   LABELS
+quarkus-demo-deployment-68557484-b6jbr   1/1     Running   0          96s   app=quarkus-demo,env=dev,pod-template-hash=68557484
+quarkus-demo-deployment-68557484-ccphv   1/1     Running   0          96s   app=quarkus-demo,env=dev,pod-template-hash=68557484
+quarkus-demo-deployment-68557484-pwk9b   1/1     Running   0          96s   app=quarkus-demo,env=dev,pod-template-hash=68557484
+----
+
+Run curl inside of the Pod (more on "exec" later)
+----
+$ kubectl exec -it quarkus-demo-deployment-68557484-pwk9b -- curl localhost:8080
+----
+
+== Services
+
+The Service makes places those more ephemeral individual Pod IPs behind a single IP & load-balancer
+
+----
+cat <<EOF | kubectl apply -f - 
+apiVersion: v1
+kind: Service
+metadata:
+  name: the-service
+spec:
+  selector:
+    app: quarkus-demo
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+EOF
+----
+
+curl those Endpoints behind that Service
+----
+$ IP=$(minikube --profile 9steps ip)
+$ PORT=$(kubectl get service the-service -o jsonpath="{.spec.ports[*].nodePort}")
+$ while true; do curl $IP:$PORT; sleep .5; done
+----
+
+=== Clean Up
+----
+$ kubectl delete deployment quarkus-demo-deployment
+----
+
+== Labels
+
+See 10_funstuff.adoc
+
+
+
+== Code & Build
 Now that you have a Namespace, you need to craft some code
 
 The "hello" directory contains several "hello world" style projects.  Let's use SpringBoot and run a quick test of the endpoint.

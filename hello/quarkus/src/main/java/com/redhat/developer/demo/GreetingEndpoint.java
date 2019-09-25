@@ -11,7 +11,7 @@ import javax.ws.rs.core.MediaType;
 @Path("/") 
 public class GreetingEndpoint {
     
-    private String prefix = "Aloha from Quarkus";
+    private String prefix = "Supersonic Subatomic Java with Quarkus";
     
     private String HOSTNAME =
        System.getenv().getOrDefault("HOSTNAME", "unknown");
