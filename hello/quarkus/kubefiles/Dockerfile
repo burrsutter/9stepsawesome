@@ -1,7 +1,6 @@
 FROM registry.access.redhat.com/ubi8/ubi-minimal
 WORKDIR /work/
 RUN chgrp -R 0 /work && chmod -R g=u /work
-# RUN chmod -R g=u /work
 COPY target/quarkus-demo-1.0.0-runner /work/quarkus-demo-1.0.0-runner
 # RUN chmod 775 /work
 EXPOSE 8080
