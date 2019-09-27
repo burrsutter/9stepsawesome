@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: myquarkus
-        image: dev.local/burrsutter/quarkus-demo:1.0.0
+        image: dev.local/burrsutter/quarkus-demo:2.0.0
         ports:
           - containerPort: 8080
         resources:

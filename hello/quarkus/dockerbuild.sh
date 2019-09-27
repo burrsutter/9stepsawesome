@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -f kubefiles/Dockerfile -t dev.local/burrsutter/quarkus-demo:1.0.0 .
+docker build -f kubefiles/Dockerfile -t dev.local/burrsutter/quarkus-demo:2.0.0 .
