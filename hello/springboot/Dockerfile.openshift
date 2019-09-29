@@ -1,0 +1,10 @@
+FROM registry.access.redhat.com/redhat-openjdk-18/openjdk18-openshift
+WORKDIR /work/
+ENV JAVA_APP_JAR boot-demo-0.0.1.jar
+# the following is not needed on this Red Hat created image
+# RUN chgrp -R 0 /work && \ 
+#    chmod -R g=u /work
+COPY target/$JAVA_APP_JAR .
+EXPOSE 8080
+USER 1001
+CMD java $JAVA_OPTIONS -jar $JAVA_APP_JAR

@@ -10,24 +10,21 @@ ctrl-c
 
 Manual Deployment
 
+docker build -f Dockerfile -t dev.local/burrsutter/boot-demo:0.0.1 .
+or 
+docker build -f Dockerfile.openshift -t dev.local/burrsutter/boot-demo:0.0.1 .
 
-Easier Deployment
+docker login docker.io
+docker images | grep boot-demo
+docker tag $1 docker.io/burrsutter/boot-demo:0.0.1
+docker push docker.io/burrsutter/boot-demo:0.0.1
+or
+docker login quay.io
+docker images | grep boot-demo
+docker tag $1 quay.io/burrsutter/boot-demo:0.0.1
+docker push quay.io/burrsutter/boot-demo:0.0.1
 
-minishift ip
-minishift oc-env
 
-oc login $(minishift ip):8443 -u admin -p admin
-admin
-admin
 
-oc new-project bootdemo
 
-add to the pom.xml
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>fabric8-maven-plugin</artifactId>
-        <version>3.5.40</version>
-      </plugin>
-
-mvn fabric8:deploy
-
+http://jshift.io/
