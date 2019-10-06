@@ -44,7 +44,7 @@ https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl
 Download & Install Minikube Cluster
 [source,bash]
 ----
-$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-darwin-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.4.0/minikube-darwin-amd64
 $ chmod +x minikube 
 # or
 $ brew cask install minikube
@@ -71,14 +71,14 @@ Note: "minikube" should be interchangeable with "minishift" in the instructions 
 ----
 #!/bin/bash
 
-export MINIKUBE_HOME=/Users/burrsutter/minikube_1.0.0/bin;
+export MINIKUBE_HOME=/Users/burrsutter/minikube/bin;
 export PATH=$MINIKUBE_HOME:$PATH
 ----
 
 [source,bash]
 ----
 $ minikube version
-minikube version: v1.0.0
+minikube version: v1.4.0
 # or
 $ minishift version
 minishift v1.33.0+ba29431
