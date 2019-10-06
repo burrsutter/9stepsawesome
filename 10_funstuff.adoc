@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: mypython
-        image: quay.io/burrsutter/mypython:1.0.0
+        image: docker.io/burrsutter/mypython:1.0.0
         ports:
         - containerPort: 8000
 EOF
