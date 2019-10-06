@@ -1,7 +1,13 @@
 = Fun Stuff
 Burr Sutter <burrsuter@gmail.com>
 
-=== Build Images
+=== Create a Namespace 
+----
+kubectl create namespace funstuff
+kubectl config set-context --current --namespace=funstuff
+----
+
+=== Build Images (Optional)
 
 ----
 cd hello/python
@@ -14,7 +20,7 @@ cd ../nodejs
 docker build -t 9stepsawesome/mynode .
 ----
 
-=== Publish Images
+=== Publish Images (Optional)
 ----
 docker login quay.io # docker.io
 
@@ -31,18 +37,20 @@ docker push quay.io/burrsutter/mynode:1.0.0
 
 === Deploy Images
 
-Using kubectl run (which is deprecated) to deploy the local images
+Using kubectl run to turn the local images into pods
 
 ----
-kubectl run mypython --image=9stepsawesome/mypython:latest --port=8000 --image-pull-policy=Never
+kubectl run mypython --image=9stepsawesome/mypython:latest --port=8000 --image-pull-policy=Never --generator=run-pod/v1
 
-kubectl run mygo --image=9stepsawesome/mygo:latest --port=8000 --image-pull-policy=Never
+kubectl run mygo --image=9stepsawesome/mygo:latest --port=8000 --image-pull-policy=Never --generator=run-pod/v1
 
-kubectl run mynode --image=9stepsawesome/mynode:latest --port=8000 --image-pull-policy=Never
+kubectl run mynode --image=9stepsawesome/mynode:latest --port=8000 --image-pull-policy=Never --generator=run-pod/v1
+
 ----
 
 OR 
-using a Deployment manifest to deploy the remote images
+
+using a Deployment manifest to deploy the remotely published images
 
 === Deploy mypython
 ----
