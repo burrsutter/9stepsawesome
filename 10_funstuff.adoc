@@ -1,6 +1,8 @@
 = Fun Stuff
 Burr Sutter <burrsuter@gmail.com>
 
+=== Build Images
+
 ----
 cd hello/python
 docker build -t 9stepsawesome/mypython .
@@ -12,35 +14,224 @@ cd ../nodejs
 docker build -t 9stepsawesome/mynode .
 ----
 
+=== Publish Images
+----
+docker login quay.io # docker.io
+
+docker tag <image-id> quay.io/burrsutter/mypython:1.0.0
+docker push quay.io/burrsutter/mypython:1.0.0
+
+docker tag <image-id> quay.io/burrsutter/mygo:1.0.0
+docker push quay.io/burrsutter/mygo:1.0.0
+
+docker tag <image-id> quay.io/burrsutter/mynode:1.0.0
+docker push quay.io/burrsutter/mynode:1.0.0
+
+----
+
+=== Deploy Images
+
+Using kubectl run (which is deprecated) to deploy the local images
+
 ----
 kubectl run mypython --image=9stepsawesome/mypython:latest --port=8000 --image-pull-policy=Never
+
 kubectl run mygo --image=9stepsawesome/mygo:latest --port=8000 --image-pull-policy=Never
+
 kubectl run mynode --image=9stepsawesome/mynode:latest --port=8000 --image-pull-policy=Never
-kubectl get pods --show-labels
 ----
 
+OR 
+using a Deployment manifest to deploy the remote images
+
+=== Deploy mypython
 ----
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mypython-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mypython
+  template:
+    metadata:
+      labels:
+        app: mypython
+    spec:
+      containers:
+      - name: mypython
+        image: quay.io/burrsutter/mypython:1.0.0
+        ports:
+        - containerPort: 8000
+EOF
+----
+
+=== Deploy mygo
+----
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mygo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mygo
+  template:
+    metadata:
+      labels:
+        app: mygo
+    spec:
+      containers:
+      - name: mygo
+        image: quay.io/burrsutter/mygo:1.0.0
+        ports:
+        - containerPort: 8000
+EOF
+----
+
+=== Deploy mynode
+----
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mynode-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mynode
+  template:
+    metadata:
+      labels:
+        app: mynode
+    spec:
+      containers:
+      - name: mynode
+        image: quay.io/burrsutter/mynode:1.0.0
+        ports:
+        - containerPort: 8000
+EOF
+----
+
+=== Show Labels
+----
+kubectl get pods --show-labels
+
+NAME                                   READY   STATUS    RESTARTS   AGE     LABELS
+mygo-deployment-77d5ccbbdd-rs2ks       1/1     Running   0          1m31s   app=mygo,pod-template-hash=77d5ccbbdd
+mynode-deployment-bdcb5855d-c9p7t      1/1     Running   0          2m8s    app=mynode,pod-template-hash=bdcb5855d
+mypython-deployment-7465d9f67b-lfq2v   1/1     Running   0          3m10s    app=mypython,pod-template-hash=7465d9f67b
+----
+
+
+=== Create Service
+----
+cd ../..
 kubectl create -f kubefiles/my-service.yml
-curl $(minikube ip):$(kubectl get service/myservice -o jsonpath="{.spec.ports[*].nodePort}")
+
+kubectl describe service my-service
+
+kubectl get service my-service -o yaml
+
+export IP=$(minikube --profile 9steps ip)
+export NODE_PORT=$(kubectl get service/my-service -o jsonpath="{.spec.ports[*].nodePort}")
+
+curl $IP:$NODE_PORT
 
 curl: (7) Failed to connect to 192.168.99.102 port 32595: Connection refused
+
+Because there is no Pod behind this Service
 ----
 
+=== Add a Pod to the Service
 ----
-kubectl label pod mypython-857985fdb6-97ll5 app=mypods
+kubectl label pod -l app=mypython inservice=mypods
 
-curl $(minikube ip):$(kubectl get service/myservice -o jsonpath="{.spec.ports[*].nodePort}")
+curl $IP:$NODE_PORT
 
-kubectl label pod mynode-77fbc4b456-jfz8t app=mypods
+Python Hello on mypython-deployment-7465d9f67b-lfq2v
 
-kubectl label pod mygo-64dd5b565d-jg8mh app=mypods
+----
 
+=== Add other Pods to the Service
+----
+kubectl label pod -l app=mynode inservice=mypods
+
+kubectl label pod -l app=mygo inservice=mypods
+
+kubectl get pods --show-labels
+
+----
+
+=== Curl a few times
+----
 while true
 do 
-  curl $(minikube ip):$(kubectl get service/myservice -o jsonpath="{.spec.ports[*].nodePort}")
-  sleep .5;
+  curl $IP:$NODE_PORT
+  sleep .3;
 done
-
 ----
 
+=== Describe Service
+----
+kubectl describe service my-service
+Name:                     my-service
+Namespace:                test
+Labels:                   app=mystuff
+Annotations:              <none>
+Selector:                 inservice=mypods
+Type:                     LoadBalancer
+IP:                       10.104.58.121
+Port:                     http  8000/TCP
+TargetPort:               8000/TCP
+NodePort:                 http  31996/TCP
+Endpoints:                172.17.0.24:8000,172.17.0.25:8000,172.17.0.26:8000
+Session Affinity:         None
+External Traffic Policy:  Cluster
+Events:                   <none>
+----
 
+The Endpoints now reflect the IP addresses of the 3 pods with the inservice:mypods label
+
+=== See the Pod IPs
+----
+kubectl get pods -o wide
+NAME                                   READY   STATUS    RESTARTS   AGE   IP 
+mygo-deployment-77d5ccbbdd-rs2ks       1/1     Running   0          27m   172.17.0.25 
+mynode-deployment-bdcb5855d-c9p7t      1/1     Running   0          28m   172.17.0.24 
+mypython-deployment-7465d9f67b-lfq2v   1/1     Running   0          36m   172.17.0.26 
+----
+
+=== See the Endpoints
+----
+kubectl get endpoints
+NAME         ENDPOINTS                                            AGE
+my-service   172.17.0.24:8000,172.17.0.25:8000,172.17.0.26:8000   18m
+----
+
+=== Remove a Pod from the Service
+by removing the "inservice" label
+----
+kubectl label pod -l app=mypython inservice-
+
+kubectl get pods --show-labels
+NAME                                   READY   STATUS    RESTARTS   AGE   LABELS
+mygo-deployment-77d5ccbbdd-rs2ks       1/1     Running   0          35m   app=mygo,inservice=mypods,pod-template-hash=77d5ccbbdd
+mynode-deployment-bdcb5855d-c9p7t      1/1     Running   0          36m   app=mynode,inservice=mypods,pod-template-hash=bdcb5855d
+mypython-deployment-7465d9f67b-lfq2v   1/1     Running   0          44m   app=mypython,pod-template-hash=7465d9f67b
+
+kubectl get endpoints
+NAME         ENDPOINTS                           AGE
+my-service   172.17.0.24:8000,172.17.0.25:8000   24m
+----
+
+=== Add it back
+----
+kubectl label pod -l app=mypython inservice=mypods
+----
