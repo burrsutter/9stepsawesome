@@ -1,0 +1,114 @@
+= Step 0: Quickstart
+Burr Sutter <burrsuter@gmail.com>
+
+=== Resources
+https://kubernetes.io/docs/user-guide/kubectl/
+
+https://kubernetes.io/docs/reference/kubectl/cheatsheet
+
+
+=== Create a Directory
+----
+mkdir ~/11steps
+cd ~/11steps
+mkdir bin
+cd bin
+----
+
+=== Download
+----
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.4.0/minikube-darwin-amd64
+
+chmod +x minikube
+
+./minikube version
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.0/bin/darwin/amd64/kubectl 
+
+chmod +x kubectl
+
+cd ..
+----
+
+=== Set Environment Variables
+----
+export MINIKUBE_HOME=/Users/burrsutter/11steps;
+export PATH=$MINIKUBE_HOME/bin:$PATH
+export KUBECONFIG=$MINIKUBE_HOME/.kube/config
+export KUBE_EDITOR="code -w"
+----
+
+=== Startup Minikube
+----
+minikube --profile 11steps config set memory 6144 
+minikube --profile 11steps config set cpus 2 
+minikube --profile 11steps config set vm-driver virtualbox 
+minikube --profile 11steps config set kubernetes-version v1.14.0
+minikube start --profile 11steps
+----
+
+=== Run kubectl commands
+----
+kubectl cluser-info
+kubectl get nodes
+kubectl get nodes --show-labels
+kubectl get namespaces
+kubectl config view
+kubectl config current-context
+kubectl get pods --all-namespaces
+kubectl get pods --all-namespaces --show-labels
+kubectl get pods --all-namespaces -o wide
+----
+
+=== Deploy Something
+----
+kubectl create deployment myapp --image=quay.io/burrsutter/myboot:v1
+
+kubectl get events
+kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl get all
+kubectl logs -l app=myapp
+
+kubectl expose deployment myapp --port=8080 --type=LoadBalancer
+
+kubectl get services
+----
+
+=== Talk to App
+----
+
+minikube --profile 11steps service myapp --url
+
+curl http://192.168.99.100:31045
+
+minikube --profile 11steps service myapp
+
+curl $(minikube -p 11steps ip):$(kubectl get service/myapp -o  jsonpath="{.spec.ports[*].nodePort}" -n default)
+
+watch kubectl get pods
+
+while true; do curl $(minikube -p 11steps ip):$(kubectl get service/myapp -o  jsonpath="{.spec.ports[*].nodePort}" -n default); sleep .3; done
+
+kubectl scale deployment myapp --replicas=3
+----
+
+=== Update the App
+----
+kubectl set image deployment/myapp myboot=quay.io/burrsutter/myboot:v2
+----
+
+=== Update the App Again
+----
+kubectl set image deployment/myapp myboot=quay.io/burrsutter/quarkus-demo:1.0.0
+----
+
+=== Clean Up
+----
+kubectl delete service myapp
+
+kubectl delete deployment myapp
+
+minikube --profile 11steps stop
+
+minikube --profile 11steps delete 
+----
