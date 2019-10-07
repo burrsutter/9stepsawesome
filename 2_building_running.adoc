@@ -53,6 +53,7 @@ $ kubectl delete namespace/demo
 Your objects should be created via a file that can be checked into source control.  Create a Namespace via yaml.
 
 ----
+$ cd 9stepsawesome
 $ kubectl create -f kubefiles/myspace-namespace.yml # <1>
 $ kubectl config set-context 9steps --namespace=myspace # <2>
 # or if you are using minishift and oc, there is a shortcut

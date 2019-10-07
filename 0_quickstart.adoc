@@ -11,11 +11,20 @@ https://kubernetes.io/docs/reference/kubectl/cheatsheet
 ----
 mkdir ~/11steps
 cd ~/11steps
+----
+
+=== git clone materials
+----
+git clone https://github.com/burrsutter/9stepsawesome
+----
+
+=== Make a directory for executables
+----
 mkdir bin
 cd bin
 ----
 
-=== Download
+=== Download minikube & kubectl
 ----
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.4.0/minikube-darwin-amd64
 
