@@ -75,8 +75,8 @@ Note: "minikube" should be interchangeable with "minishift" in the instructions 
 ----
 #!/bin/bash
 
-export MINIKUBE_HOME=/Users/burrsutter/minikube/bin;
-export PATH=$MINIKUBE_HOME:$PATH
+export MINIKUBE_HOME=/Users/burrsutter/minikube/;
+export PATH=$MINIKUBE_HOME/bin:$PATH
 ----
 
 [source,bash]
