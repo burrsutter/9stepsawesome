@@ -16,7 +16,11 @@ These instructions are primarily for Linux & MacOS.  At some point, I do hope to
 These instructions have NOT been tested well on Windows Bash.
 
 === Prerequisites
-* Docker for Mac/Windows
+* https://docs.docker.com/docker-for-windows/install/[Docker for Windows]
+or
+* https://docs.docker.com/docker-for-mac/[Docker for Mac]
+and/or
+* https://podman.io/[Podman]
 * bash shell
 * git
 * JDK 
@@ -266,6 +270,10 @@ The command "kubectl run" is the fastest way to deploy a pod (think linux contai
 
 ----
 $ kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080
+
+# Non-deprecated run command is
+# kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.10 --port=8080 --generator=run-pod/v1
+# but this only results in a single Pod
 ----
 
 It produces a Deployment
@@ -292,6 +300,7 @@ $ kubectl get pods --all-namespaces
 # and it can be fun to see what labels were applied to your pod
 $ kubectl get pods --show-labels
 ----
+
 
 You create a Service
 ----
