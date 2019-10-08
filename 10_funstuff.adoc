@@ -243,3 +243,8 @@ my-service   172.17.0.24:8000,172.17.0.25:8000   24m
 ----
 kubectl label pod -l app=mypython inservice=mypods
 ----
+
+=== Clean up
+----
+kubectl delete namespace funstuff
+----
