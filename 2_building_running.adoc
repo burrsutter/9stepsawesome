@@ -55,7 +55,7 @@ Your objects should be created via a file that can be checked into source contro
 ----
 $ cd 9stepsawesome
 $ kubectl create -f kubefiles/myspace-namespace.yml # <1>
-$ kubectl config set-context 9steps --namespace=myspace # <2>
+$ kubectl config set-context --current --namespace=myspace # <2>
 # or if you are using minishift and oc, there is a shortcut
 $ oc project myspace
 # or if you installed kubectx, try
