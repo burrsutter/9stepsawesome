@@ -1,0 +1,127 @@
+Custom Resources extend the API
+Custom Controllers provide the functionality - continually maintains the desired state -  to monitor its state and reconcile the resource to match with the configuration
+https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
+
+https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/
+
+Custom Resource Definitions (CRDs) in version 1.7
+
+----
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: pizzas.mykubernetes.burrsutter.com
+  labels:
+    app: pizzamaker
+    mylabel: stuff
+  annotations:
+    "yourannotation": morestuff
+spec:
+  group: mykubernetes.burrsutter.com
+  scope: Namespaced
+  version: v1beta2
+  names:
+    kind: Pizza
+    listKind: PizzaList
+    plural: pizzas
+    singular: pizza
+    shortNames:
+    - pz
+----
+
+
+kubectl apply -f pizza-crd.yaml
+
+kubectl create namespace mystuff
+
+kubectl get pizzas
+
+kubectl get crds | grep pizza
+pizzas.mykubernetes.burrsutter.com                          2019-09-04T19:40:09Z
+
+kubectl proxy --port=8181
+
+curl localhost:8181
+
+curl localhost:8181/apis/mykubernetes.burrsuter.com
+
+curl localhost:8181/apis/mykubernetes.burrsuter.com/pizza
+
+ctrl-c
+
+kubectl apply -f cheese-pizza.yaml
+
+kubectl get pizzas
+
+kubectl describe pizza burrcheese
+
+change 
+
+toppings: cheese
+
+kubectl apply -f cheese-pizza.yaml
+
+The Pizza "burrcheese" is invalid: []: Invalid value: map[string]interface {}{"apiVersion":"mykubernetes.burrsutter.com/v1beta2", "kind":"Pizza", "metadata":map[string]interface {}{"annotations":map[string]interface {}{"kubectl.kubernetes.io/last-applied-configuration":"{\"apiVersion\":\"mykubernetes.burrsutter.com/v1beta2\",\"kind\":\"Pizza\",\"metadata\":{\"annotations\":{},\"name\":\"burrcheese\",\"namespace\":\"demo2-amq\"},\"spec\":{\"sauce\":\"regular\",\"toppings\":\"cheese\"}}\n"}, "creationTimestamp":"2019-09-04T21:47:12Z", "generation":2, "name":"burrcheese", "namespace":"demo2-amq", "resourceVersion":"1468450", "uid":"8db69d73-cf5d-11e9-a469-0a0b803a9c70"}, "spec":map[string]interface {}{"sauce":"regular", "toppings":"cheese"}}: validation failure list:
+spec.toppings in body must be of type array: "string"
+
+kubectl apply -f meat-lovers.yaml
+
+kubectl apply -f veggie-lovers.yaml
+
+kubectl get pizzas --all-namespaces
+
+kubectl delete pizzas --all
+
+Example CRD
+Kafka CRD:
+https://github.com/strimzi/strimzi-kafka-operator/blob/master/install/cluster-operator/040-Crd-kafka.yaml
+
+
+Now, let's build a controller:
+https://metacontroller.app/guide/create/
+
+kubectl create namespace metacontroller
+
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller-rbac.yaml
+
+kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller.yaml
+
+stern metacontroller-0 -n metacontroller
+
+kubectl create namespace mystuff
+
+oc project mystuff
+
+kubectl apply -f pizza-controller.yaml
+
+metacontroller-0 metacontroller I0904 22:23:35.324855       1 metacontroller.go:148] sync CompositeController pizza-controller
+metacontroller-0 metacontroller I0904 22:23:35.324899       1 factory.go:104] Starting shared informer for pizzas in mykubernetes.burrsutter.com/v1beta2
+metacontroller-0 metacontroller I0904 22:23:35.324940       1 factory.go:104] Starting shared informer for pods in v1
+metacontroller-0 metacontroller I0904 22:23:35.325019       1 controller.go:165] Starting Pizza CompositeController
+metacontroller-0 metacontroller I0904 22:23:35.325029       1 controller.go:169] Waiting for Pizza CompositeController caches to sync
+metacontroller-0 metacontroller I0904 22:23:35.325039       1 controller.go:32] Waiting for caches to sync for Pizza controller
+metacontroller-0 metacontroller I0904 22:23:35.325453       1 reflector.go:202] Starting reflector *unstructured.Unstructured (30m0s) from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.325476       1 reflector.go:240] Listing and watching *unstructured.Unstructured from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.325947       1 reflector.go:202] Starting reflector *unstructured.Unstructured (30m0s) from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.325963       1 reflector.go:240] Listing and watching *unstructured.Unstructured from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.525234       1 shared_informer.go:123] caches populated
+metacontroller-0 metacontroller I0904 22:23:35.525259       1 controller.go:39] Caches are synced for Pizza controller
+
+
+kubectl -n mystuff apply -f pizza-controller.yaml
+
+kubectl -n mystuff create configmap pizza-controller --from-file=sync.py
+
+kubectl -n mystuff apply -f webhook-py.yaml
+
+then you are ready to deploy a pizza
+
+kubectl -n mystuff apply -f veggie-lovers.yaml
+
+kubectl logs burrveggie
+
+
+
+
+
+

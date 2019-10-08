@@ -1,0 +1,17 @@
+{
+  "parent": {
+    "metadata": {
+      "name": "burrcheese"
+    },
+    "spec": {
+      "toppings": [
+         "mozzarella",
+         "pepperoni"
+      ],
+      "sauce": "regular"
+    }
+  },
+  "children": {
+    "Pod.v1": "x"
+  }
+}

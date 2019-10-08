@@ -1,0 +1,11 @@
+apiVersion: mykubernetes.burrsutter.com/v1beta2
+kind: Pizza
+metadata:
+  name: burrmeats
+spec:
+  toppings: 
+  - mozzarella
+  - pepperoni
+  - sausage
+  - bacon
+  sauce: extra

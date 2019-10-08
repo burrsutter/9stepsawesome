@@ -1,0 +1,35 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: pizza-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pizza-controller
+  template:
+    metadata:
+      labels:
+        app: pizza-controller
+    spec:
+      containers:
+      - name: controller
+        image: python:2.7
+        command: ["python", "/hooks/sync.py"]
+        volumeMounts:
+        - name: hooks
+          mountPath: /hooks
+      volumes:
+      - name: hooks
+        configMap:
+          name: pizza-controller        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pizza-controller
+spec:
+  selector:
+    app: pizza-controller
+  ports:
+  - port: 8080        

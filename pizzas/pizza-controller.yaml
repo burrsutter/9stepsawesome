@@ -1,0 +1,18 @@
+apiVersion: metacontroller.k8s.io/v1alpha1
+kind: CompositeController
+metadata:
+  name: pizza-controller
+spec:
+  generateSelector: true
+  parentResource:
+    apiVersion: mykubernetes.burrsutter.com/v1beta2
+    resource: pizzas
+  childResources:
+  - apiVersion: v1
+    resource: pods
+    updateStrategy:
+      method: Recreate
+  hooks:
+    sync:
+      webhook:
+        url: http://pizza-controller.mystuff:8080/sync
