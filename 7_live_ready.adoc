@@ -1,7 +1,16 @@
 = Step 7: Live and Ready
 Burr Sutter <burrsuter@gmail.com>
 
-If you remember that both our rolling update (seen in Step 2) and our setting/unsetting env variables (seen in Step 5) caused the pods to "restart".  The problem is that clients (polling curl) also received error messages during this "downtime".  
+Remember that both our rolling update (seen in Step 2) and our setting/unsetting env variables (seen in Step 5) caused the pods to "restart".  The problem is that clients (polling curl) also received error messages during this "downtime".  
+
+----
+$ kubectl scale --replicas=3 deployment/myboot
+$ IP=$(minikube --profile 9steps ip)
+$ PORT=$(kubectl get service myboot -o jsonpath="{.spec.ports[*].nodePort}")
+$ while true; do curl $IP:$PORT; sleep .3; done
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
+$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v1
+----
 
 Now, let's have a zero-downtime rolling update/deployment.  
 
@@ -93,8 +102,8 @@ start the poller in terminal 1
 
 while true
 do 
-  curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
-  sleep .5;
+  curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")
+  sleep .3;
 done
 ----
 
@@ -104,9 +113,9 @@ scale up to 2 replicas
 $ kubectl scale deployment/myboot --replicas=2
 ----
 
-Make sure you have v2 of the Spring Boot image ready - Bonjour
-
+Make sure you have v2 of the Spring Boot image ready. Change the Java code to say 'Bonjour' and rebuild
 ----
+$ mvn clean package
 $ docker build -t 9stepsawesome/myboot:v2 .
 ----
 
@@ -119,9 +128,9 @@ $ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
 and there will no errors
 
 ----
-Hello from Spring Boot! 115 on myboot-859cbbfb98-lnc8q
-Hello from Spring Boot! 116 on myboot-859cbbfb98-lnc8q
-Hello from Spring Boot! 117 on myboot-859cbbfb98-lnc8q
+Aloha from Spring Boot! 115 on myboot-859cbbfb98-lnc8q
+Aloha from Spring Boot! 116 on myboot-859cbbfb98-lnc8q
+Aloha from Spring Boot! 117 on myboot-859cbbfb98-lnc8q
 Bonjour from Spring Boot! 0 on myboot-5b686c586f-ccv5r
 Bonjour from Spring Boot! 1 on myboot-5b686c586f-ccv5r
 ----
@@ -136,8 +145,8 @@ $ kubectl rollout undo deployment/myboot
 Bonjour from Spring Boot! 30 on myboot-5b686c586f-ccv5r
 Bonjour from Spring Boot! 31 on myboot-5b686c586f-ccv5r
 Bonjour from Spring Boot! 32 on myboot-5b686c586f-ccv5r
-Hello from Spring Boot! 0 on myboot-859cbbfb98-4rvl8
-Hello from Spring Boot! 1 on myboot-859cbbfb98-4rvl8
+Aloha from Spring Boot! 0 on myboot-859cbbfb98-4rvl8
+Aloha from Spring Boot! 1 on myboot-859cbbfb98-4rvl8
 ----
 
 Once you understand the basics then you can try the advanced demonstration.  Where a stateful shopping cart is preserved across a rolling update based on leveraging the readiness probe.
