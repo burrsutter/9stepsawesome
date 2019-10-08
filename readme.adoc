@@ -9,9 +9,9 @@ include::1_installation_started.adoc[Step 1: Installation & Getting Started]
 
 include::2_building_running.adoc[Step 2: Building Images & Running Containers]
 
-include::3_kubectl_exec.adoc[Step 3: exec Magic]
+include::3_logs.adoc[Step 3: Logs]
 
-include::4_logs.adoc[Step 4: Logs]
+include::4_kubectl_exec.adoc[Step 4: exec Magic]
 
 include::5_configuration.adoc[Step 5: Configuration]
 
