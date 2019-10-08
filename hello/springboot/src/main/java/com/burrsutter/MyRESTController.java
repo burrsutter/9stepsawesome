@@ -24,8 +24,9 @@ public class MyRESTController {
    @RequestMapping("/")
    public String sayHello() {
        greeting = environment.getProperty("GREETING","Aloha");
-       System.out.println(greeting + " from " + hostname);
-       return greeting + " from Spring Boot! " + count++ + " on " + hostname + "\n";
+       count++;
+       System.out.println(greeting + " from " + hostname + " " + count);
+       return greeting + " from Spring Boot! " + count + " on " + hostname + "\n";
    }
 
    @RequestMapping("/sysresources") 
