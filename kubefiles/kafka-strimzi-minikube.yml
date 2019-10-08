@@ -1,0 +1,18 @@
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: Kafka
+metadata: 
+  name: burr-cluster
+spec:
+  kafka:
+    replicas: 3
+    listeners:
+      external:
+        type: nodeport
+    storage:
+      type: ephemeral
+  zookeeper:
+    replicas: 3
+    storage:
+      type: ephemeral
+  entityOperator:
+    topicOperator: {}
