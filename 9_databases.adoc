@@ -13,11 +13,11 @@ ifndef::imagesdir[:imagesdir: images]
 
 [source,bash]
 ----
-$ minikube docker-env
+$ minikube --profile 9steps docker-env
 # or
 $ minishift docker-env
 
-$ eval $(minishift docker-env)
+$ eval $(minikube --profile 9steps docker-env)
 ----
 
 Pre-pull the docker image
@@ -64,7 +64,7 @@ Now, make the Postgres port 5432 available at localhost
 
 [source,bash]
 ----
-$ kubectl port-forward <posgtres-pod> 5432:5432
+$ kubectl port-forward <posgtres-pod> 5433:5432
 ----
 
 Access with pgAdmin https://www.postgresql.org/ftp/pgadmin/pgadmin4/v3.4 footnote:[Admin login details can be found in the kubefiles/postgres-depoloyment.yml]
@@ -76,13 +76,19 @@ image::pgadmin_add_server.png[pgAdmin Add Server]
 image::pgadmin_add_server2.png[pgAdmin Add Server 2]
 
 
-Select Tools -> Query Tool and write and execute the following footnote:[You may need to execute the command line by line and not all at once]
+Select Tools -> Query Tool and write and execute the following 
 
 [source,sql]
 ----
 CREATE ROLE myuser WITH LOGIN PASSWORD 'mypassword';
+----
+----
 ALTER ROLE myuser CREATEDB;
+----
+----
 CREATE DATABASE mydb;
+----
+----
 ALTER DATABASE mydb owner to "myuser";
 ----
 
@@ -150,9 +156,11 @@ $ cd ../../
 $ kubectl create -f kubefiles/mybootdata-deployment.yml
 $ kubectl create -f kubefiles/mybootdata-service.yml
 $ kubectl get service/mybootdata -o jsonpath="{.spec.ports[*].nodePort}"
-$ QAHOSTPORT=$(minikube ip):$(kubectl get service/mybootdata -o jsonpath="{.spec.ports[*].nodePort}")
+$ QAHOSTPORT=$(minikube --profile 9steps ip):$(kubectl get service/mybootdata -o jsonpath="{.spec.ports[*].nodePort}")
 $ curl $QAHOSTPORT/questions
+$ cd hellodata/boot_postgres
 $ curl -X POST $QAHOSTPORT/questions -d @anotherquestion.json --header "Content-Type: application/json"
+$ curl $QAHOSTPORT/questions
 ----
 
 .pgAdmin Questions
@@ -161,6 +169,22 @@ image::pgadmin_query_questions.png[pgAdmin Questions]
 .Browser Questions
 image::chrome_rest_api.png[Browser Questions]
 
+Let's see if the data sticks around
+----
+$ kubectl delete pod -l app=postgres
+----
+
+and after the pod gets recreated, check your /questions endpoint
+----
+$ curl $QAHOSTPORT/questions
+{"content":[{"createdAt":"2019-10-08T17:41:50.869+0000","updatedAt":"2019-10-08T17:41:50.869+0000","id":1000,"title":"How to walk my dog?","description":"I need to walk my dog on a regular basis, the dog is about 20 pounds and has rather short legs.  She is always eager to go but often I am too busy or distracted.  What are some strategies for insuring the dog gets walked more often?"},{"createdAt":"2019-10-08T21:46:49.825+0000","updatedAt":"2019-10-08T21:46:49.825+0000","id":1051,"title":"How to shave my yak?","description":"My boss has asked for daily TPS reports, how can I convince him this is simply yak shaving?"}],"pageable":{"sort":{"sorted":false,"unsorted":true},"pageSize":20,"pageNumber":0,"offset":0,"paged":true,"unpaged":false},"last":true,"totalPages":1,"totalElements":2,"first":true,"sort":{"sorted":false,"unsorted":true},"numberOfElements":2,"size":20,"number":0}
+----
+
+make sure to restart the port forwarding
+
+----
+$ kubectl port-forward postgres-645fbb48f-hml79 5433:5432
+----
 
 
 == Sharing the in-container data with the host MacOS or Windows
@@ -173,7 +197,7 @@ To share the in-VM directory with the host OS
 minikube automatically shares /Users with the VM
 
 ----
-minikube ssh
+minikube --profile 11steps ssh
 cd /Users
 ----
 
@@ -185,10 +209,4 @@ minishift hostfolder add -t sshfs --source /Users --target /Users Users
 
 Note: The Postgres image will not start by default on /Users/ due to permissions problems
 
-== Postgres via Operator
-(under development)
-
-https://crunchydata.github.io/postgres-operator/stable/installation/manual-installation/
-
-https://github.com/CrunchyData/postgres-operator
 
