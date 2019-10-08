@@ -60,6 +60,8 @@ First you need the pod identifier and while you could just copy and paste it, it
 
 ----
 $ PODID=$(kubectl get pods -l app=myboot -o 'jsonpath={.items[0].metadata.name}')
+#OR
+# PODID=$(kubectl get pods -l app=myboot -o name)
 $ echo $PODID
 ----
 

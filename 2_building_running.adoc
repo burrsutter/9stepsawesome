@@ -81,7 +81,9 @@ $ kubens
 
 == Pods
 
-Create a standalone Pod. 
+https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/[Pod]
+
+Create a standalone Pod
 
 ----
 cat <<EOF | kubectl apply -f -
@@ -104,11 +106,13 @@ $ kubectl delete pod quarkus-demo
 
 == ReplicaSets
 
-Create a Replica Set
+https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/[ReplicaSet]
+
+Create a ReplicaSet
 
 ----
 cat <<EOF | kubectl apply -f -
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
     name: rs-quarkus-demo
@@ -152,6 +156,11 @@ rs-quarkus-demo-mzb6m   1/1     Running   0          3m
 rs-quarkus-demo-zxbhq   1/1     Running   0          3m
 ----
 
+The pods are owned by the replicaSet
+----
+$ kubectl get pod rs-quarkus-demo-vpppb -o json | jq ".metadata.ownerReferences[]"
+----
+
 Delete the replicatset
 ----
 $ kubectl delete replicaset rs-quarkus-demo
@@ -166,6 +175,8 @@ rs-quarkus-demo-x92s7   0/1     Terminating   0          5m
 ----
 
 == Deployments
+
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/[Deployments]
 
 ----
 cat <<EOF | kubectl apply -f -
@@ -206,9 +217,16 @@ Run curl inside of the Pod (more on "exec" later)
 $ kubectl exec -it quarkus-demo-deployment-68557484-pwk9b -- curl localhost:8080
 ----
 
+Note: No Naked Pods
+
+https://kubernetes.io/docs/concepts/configuration/overview/#naked-pods-vs-replicasets-deployments-and-jobs[No Naked]
+
+
 == Services
 
 The Service makes places those more ephemeral individual Pod IPs behind a single IP & load-balancer
+
+https://kubernetes.io/docs/concepts/services-networking/service/[Services]
 
 ----
 cat <<EOF | kubectl apply -f - 
@@ -236,6 +254,7 @@ $ while true; do curl $IP:$PORT; sleep .5; done
 
 === Clean Up
 ----
+$ kubectl delete the-service
 $ kubectl delete deployment quarkus-demo-deployment
 ----
 

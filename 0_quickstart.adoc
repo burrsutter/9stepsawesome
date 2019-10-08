@@ -67,6 +67,8 @@ kubectl config current-context
 kubectl get pods --all-namespaces
 kubectl get pods --all-namespaces --show-labels
 kubectl get pods --all-namespaces -o wide
+
+minikube --profile 11steps dashboard
 ----
 
 === Deploy Something
@@ -92,11 +94,11 @@ curl http://192.168.99.100:31045
 
 minikube --profile 11steps service myapp
 
-curl $(minikube -p 11steps ip):$(kubectl get service/myapp -o  jsonpath="{.spec.ports[*].nodePort}" -n default)
+curl $(minikube -p 11steps ip):$(kubectl get service/myapp -o jsonpath="{.spec.ports[*].nodePort}" -n default)
 
 watch kubectl get pods
 
-while true; do curl $(minikube -p 11steps ip):$(kubectl get service/myapp -o  jsonpath="{.spec.ports[*].nodePort}" -n default); sleep .3; done
+while true; do curl $(minikube -p 11steps ip):$(kubectl get service/myapp -o jsonpath="{.spec.ports[*].nodePort}" -n default); sleep .3; done
 
 kubectl scale deployment myapp --replicas=3
 ----
