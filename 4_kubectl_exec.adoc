@@ -39,7 +39,7 @@ $ kubectl describe deployment/myboot
 You can hit its "consume" endpoint some more, watching it OOMKilled and restart
 
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
 ----
 
 and
