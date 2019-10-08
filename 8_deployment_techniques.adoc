@@ -8,9 +8,9 @@ https://martinfowler.com/bliki/BlueGreenDeployment.html[Description of Blue/Gree
 Switching over to yourspace as the default since we will be manipulating the Node (mynode) app.
 
 ----
-$ kubectl config set-context minikube --namespace=yourspace
+$ kubectl config set-context --current --namespace=yourspace
 # or kubens yourspace
-$ kubectl get pods
+$ kubectl get pods 
 NAME                      READY     STATUS    RESTARTS   AGE
 mynode-68b9b9ffcc-4kkg5   1/1       Running   0          15m
 mynode-68b9b9ffcc-wspxf   1/1       Running   0          18m
@@ -31,19 +31,33 @@ Poll mynode
 
 while true
 do 
-  curl $(minikube ip):$(kubectl get service/mynode -o jsonpath="{.spec.ports[*].nodePort}")
-  sleep .5;
+  curl $(minikube --profile 9steps ip):$(kubectl get service/mynode -o jsonpath="{.spec.ports[*].nodePort}")
+  sleep .3;
 done
 ----
 
 ----
-Hello from Node.js! 4 on mynode-68b9b9ffcc-jv4fd
-Hello from Node.js! 2 on mynode-68b9b9ffcc-vq9k5
-Hello from Node.js! 5 on mynode-68b9b9ffcc-jv4fd
-Hello from Node.js! 6 on mynode-68b9b9ffcc-jv4fd
+Node Hello on mynode-668959c78d-j66hl 3
+Node Hello on mynode-668959c78d-j66hl 4
+Node Hello on mynode-668959c78d-j66hl 5
 ----
 
 Let's call this version BLUE (the color does not matter) and we wish to deploy GREEN
+
+You should currently be pointing at the v1 image
+----
+$ kubectl describe deployment mynode
+...
+Pod Template:
+  Labels:  app=mynode
+  Containers:
+   mynode:
+    Image:        9stepsawesome/mynode:v1
+    Port:         8000/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+...
+----
 
 Modify hello-http.js to say Bonjour
 ----
@@ -94,8 +108,8 @@ $ docker images | grep 9steps
 Run the image to see if you built it correctly
 ----
 $ docker run -it -p 8000:8000 9stepsawesome/mynode:v2
-$ curl $(minikube ip):8000
-Bonjour from Node.js! 0 on 001b160eaa82
+$ curl $(minikube --profile 9steps ip):8000
+Node Bonjour on bad6fd627ea2 0
 ----
 
 Now, there is a 2nd deployment yaml for mynodeNew
@@ -124,6 +138,7 @@ spec:
 ----
 
 ----
+$ cd ../..
 $ kubectl create -f kubefiles/mynode-deployment-new.yml
 ----
 
@@ -135,16 +150,17 @@ NAME                         READY     STATUS    RESTARTS   AGE
 mynode-68b9b9ffcc-jv4fd      1/1       Running   0          23m
 mynode-68b9b9ffcc-vq9k5      1/1       Running   0          23m
 mynodenew-5fc946f544-q9ch2   1/1       Running   0          25s
+mynodenew-6bddcb55b5-wctmd   1/1       Running   0          25s
 ----
 
 Yet your client/user is still seeing the old one only
 
 ----
 $  curl $(minikube ip):$(kubectl get service/mynode -o jsonpath="{.spec.ports[*].nodePort}")
-Hello from Node.js! 11 on mynode-68b9b9ffcc-jv4fd
+Node Hello on mynode-668959c78d-j66hl 102
 ----
 
-You can tell the new pod carries the new code by with an exec
+You can tell the new pod carries the new code with an exec
 
 ----
 $ kubectl exec -it mynodenew-5fc946f544-q9ch2 /bin/bash
@@ -153,19 +169,35 @@ Bonjour from Node.js! 0 on mynodenew-5fc946f544-q9ch2
 $ exit
 ----
 
+
 Now update the single Service to point to the new pod and go GREEN
 
 ----
 $ kubectl patch svc/mynode -p '{"spec":{"selector":{"app":"mynodenew"}}}'
+Node Hello on mynode-668959c78d-69mgw 907
+Node Bonjour on mynodenew-6bddcb55b5-jvwfk 0
+Node Bonjour on mynodenew-6bddcb55b5-jvwfk 1
+Node Bonjour on mynodenew-6bddcb55b5-jvwfk 2
+Node Bonjour on mynodenew-6bddcb55b5-wctmd 1
 ----
 
 You have just flipped all users to Bonjour (GREEN) and if you wish to flip back
 
 ----
 $ kubectl patch svc/mynode -p '{"spec":{"selector":{"app":"mynode"}}}'
+Node Bonjour on mynodenew-6bddcb55b5-wctmd 8
+Node Hello on mynode-668959c78d-j66hl 957
+Node Hello on mynode-668959c78d-69mgw 908
+Node Hello on mynode-668959c78d-69mgw 909
 ----
 
 Note: Our deployment yaml did not have a live & ready probe, things worked out OK here because we waited until long after mynodenew was up and running before flipping the service selector.
+
+Clean up
+----
+$ kubectl delete deployment mynode
+$ kubectl delete deployment mynodenew
+----
 
 == Built-In Canary
 
@@ -175,7 +207,7 @@ There are at least two types of deployments that some folks consider "canary dep
 
 Switching back to focusing on myboot and myspace
 ----
-$ kubectl config set-context minikube --namespace=mypace
+$ kubectl config set-context --current --namespace=myspace
 $ kubectl get pods
 kubectl get pods
 NAME                      READY     STATUS        RESTARTS   AGE
@@ -188,7 +220,7 @@ Make sure myboot has 2 replicas
 $ kubectl scale deployment/myboot --replicas=2
 ----
 
-and let's attempt to put some bad code into production
+and let's attempt to put some really bad code into production
 
 Go into hello/springboot/MyRESTController.java and add a System.exit(1) into the /health logic
 ----
@@ -214,7 +246,11 @@ $ docker build -t 9stepsawesome/myboot:v3 .
 
 Terminal 1: Start a poller
 ----
-$ ./poll_myboot.sh
+while true
+do
+  curl $(minikube -p 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}" -n myspace)
+  sleep .3;
+done
 ----
 
 Terminal 2: Watch pods
@@ -224,7 +260,7 @@ $ kubectl get pods -w
 
 Terminal 3: Watch events
 ----
-$ kubectl get events -w
+$ kubectl get events --sort-by=.metadata.creationTimestamp
 ----
 
 Terminal 4: rollout the v3 update
@@ -244,9 +280,12 @@ myboot-5d7fb559dd-qh6fl   0/1       CrashLoopBackOff   1         11m
 myboot-859cbbfb98-rwgp5   0/1       Terminating   0         6h
 ----
 
+Look at your Events
 ----
 $ kubectl get events -w
-2018-08-02 19:42:19 -0400 EDT   2018-08-02 19:42:16 -0400 EDT   2         myboot-5d7fb559dd-qh6fl.154735c94d1446ce   Pod       spec.containers{myboot}   Warning   BackOff   kubelet, minikube   Back-off restarting failed container
+6s          Warning   Unhealthy           pod/myboot-64db5994f6-s24j5    Readiness probe failed: Get http://172.17.0.6:8080/health: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
+6s          Warning   Unhealthy           pod/myboot-64db5994f6-h8g2t    Readiness probe failed: Get http://172.17.0.7:8080/health: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
+5s          Warning   Unhealthy
 ----
 
 And yet your polling client, stays with the old code & old pod
@@ -277,10 +316,7 @@ $ mvn clean package
 $ docker build -t 9stepsawesome/myboot:v3 .
 ----
 
-and now rollout the change to v3
-----
-$ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v3
-----
+and now just wait for the "control loop" to self-correct
 
 == Manual Canary with multiple Deployments
 
