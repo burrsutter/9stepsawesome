@@ -1,4 +1,4 @@
-= Step 4: Logs
+= Step 3: Logs
 Burr Sutter <burrsuter@gmail.com>
 
 ifndef::imagesdir[:imagesdir: images]

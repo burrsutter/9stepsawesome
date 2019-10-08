@@ -1,4 +1,4 @@
-= Step 3: exec Magic
+= Step 4: exec Magic
 Burr Sutter <burrsuter@gmail.com>
 
 ifndef::codedir[:codedir: kubefiles]
