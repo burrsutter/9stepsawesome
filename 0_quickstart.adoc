@@ -121,5 +121,7 @@ kubectl delete deployment myapp
 
 minikube --profile 11steps stop
 
+ls -lh ~/11steps/.minikube/machines/11steps
+
 minikube --profile 11steps delete 
 ----
