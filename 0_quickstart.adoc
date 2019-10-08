@@ -63,7 +63,9 @@ kubectl get nodes
 kubectl get nodes --show-labels
 kubectl get namespaces
 kubectl config view
+cat $KUBECONFIG
 kubectl config current-context
+minikube --profile 11steps config view
 kubectl get pods --all-namespaces
 kubectl get pods --all-namespaces --show-labels
 kubectl get pods --all-namespaces -o wide
@@ -87,6 +89,7 @@ kubectl get services
 
 === Talk to App
 ----
+minikube --profile 11steps ip
 
 minikube --profile 11steps service myapp --url
 
