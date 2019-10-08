@@ -204,3 +204,5 @@ And consume should no longer blow up
 $ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
 ----
 
+
+More information on https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/[kubectl exec]
