@@ -29,16 +29,20 @@ spec:
     - pz
 ----
 
-
+----
 kubectl apply -f pizza-crd.yaml
 
 kubectl create namespace mystuff
 
 kubectl get pizzas
+----
 
-kubectl get crds | grep pizza
+----
+$ kubectl get crds | grep pizza
 pizzas.mykubernetes.burrsutter.com                          2019-09-04T19:40:09Z
+----
 
+----
 kubectl proxy --port=8181
 
 curl localhost:8181
@@ -54,11 +58,13 @@ kubectl apply -f cheese-pizza.yaml
 kubectl get pizzas
 
 kubectl describe pizza burrcheese
+----
 
 change 
 
 toppings: cheese
 
+----
 kubectl apply -f cheese-pizza.yaml
 
 The Pizza "burrcheese" is invalid: []: Invalid value: map[string]interface {}{"apiVersion":"mykubernetes.burrsutter.com/v1beta2", "kind":"Pizza", "metadata":map[string]interface {}{"annotations":map[string]interface {}{"kubectl.kubernetes.io/last-applied-configuration":"{\"apiVersion\":\"mykubernetes.burrsutter.com/v1beta2\",\"kind\":\"Pizza\",\"metadata\":{\"annotations\":{},\"name\":\"burrcheese\",\"namespace\":\"demo2-amq\"},\"spec\":{\"sauce\":\"regular\",\"toppings\":\"cheese\"}}\n"}, "creationTimestamp":"2019-09-04T21:47:12Z", "generation":2, "name":"burrcheese", "namespace":"demo2-amq", "resourceVersion":"1468450", "uid":"8db69d73-cf5d-11e9-a469-0a0b803a9c70"}, "spec":map[string]interface {}{"sauce":"regular", "toppings":"cheese"}}: validation failure list:
@@ -72,6 +78,9 @@ kubectl get pizzas --all-namespaces
 
 kubectl delete pizzas --all
 
+----
+
+
 Example CRD
 Kafka CRD:
 https://github.com/strimzi/strimzi-kafka-operator/blob/master/install/cluster-operator/040-Crd-kafka.yaml
@@ -80,6 +89,7 @@ https://github.com/strimzi/strimzi-kafka-operator/blob/master/install/cluster-op
 Now, let's build a controller:
 https://metacontroller.app/guide/create/
 
+----
 kubectl create namespace metacontroller
 
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller-rbac.yaml
@@ -90,7 +100,7 @@ stern metacontroller-0 -n metacontroller
 
 kubectl create namespace mystuff
 
-oc project mystuff
+kubens mystuff
 
 kubectl apply -f pizza-controller.yaml
 
@@ -107,7 +117,9 @@ metacontroller-0 metacontroller I0904 22:23:35.325963       1 reflector.go:240] 
 metacontroller-0 metacontroller I0904 22:23:35.525234       1 shared_informer.go:123] caches populated
 metacontroller-0 metacontroller I0904 22:23:35.525259       1 controller.go:39] Caches are synced for Pizza controller
 
+----
 
+----
 kubectl -n mystuff apply -f pizza-controller.yaml
 
 kubectl -n mystuff create configmap pizza-controller --from-file=sync.py
@@ -119,9 +131,21 @@ then you are ready to deploy a pizza
 kubectl -n mystuff apply -f veggie-lovers.yaml
 
 kubectl logs burrveggie
+----
 
+=== Kafka via OperatorHub
 
+----
+curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/0.12.0/install.sh | bash -s 0.12.0
 
+kubectl create -f https://operatorhub.io/install/strimzi-kafka-operator.yaml
+
+kubectl get csv -n operators
+
+kubectl get crds
+
+kubectl apply -f https://raw.githubusercontent.com/burrsutter/9stepsawesome/master/kubefiles/kafka-strimzi-minikube.yml
+----
 
 
 
