@@ -1,0 +1,44 @@
+= jshift
+
+http://jshift.io;[jshift.io]
+
+This example builds a linux container image, without a Dockerfile.  And it generates the Kubernetes manifests and deploys your app into minikube
+
+=== Connect to the minikube docker daemon
+----
+$ eval $(minikube --profile 9steps docker-env)
+----
+
+=== Generates the Kube manifests 
+----
+$ mvn clean k8s:resource -Pkubernetes
+$ ls target/classes/META-INF/jshift
+$ cat target/classes/META-INF/jshift/kubernetes.yml
+----
+
+=== Build artifacts
+----
+$ mvn package k8s:build -Pkubernetes
+$ ls target/boot-demo-0.0.1.jar
+$ java -jar target/boot-demo-0.0.1.jar
+$ curl localhost:8080
+$ docker images | grep boot-demo
+----
+
+=== Deploy to minikube
+----
+$ mvn k8s:deploy -Pkubernetes
+----
+
+=== Talk to it
+----
+$ IP=$(minikube -p 9steps ip)
+$ NODEPORT=$(kubectl get service/boot-demo -o jsonpath="{.spec.ports[*].nodePort}")
+
+$ curl $IP:$NODEPORT
+----
+
+=== Clean up
+----
+$ mvn k8s:undeploy -Pkubernetes
+----
