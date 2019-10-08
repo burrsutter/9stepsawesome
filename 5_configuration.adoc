@@ -40,6 +40,16 @@ or
 $ kubectl scale --replicas=1 deployment/myboot
 ----
 
+Ask the application for its configuration
+----
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+Configuration for : myboot-9bfc7b4b4-p69hr
+databaseConn=Default
+msgBroker=Default
+greeting=Default
+love=Default
+----
+
 Then set the env var at the Deployment 
 ----
 $ kubectl set env deployment/myboot GREETING="namaste"
@@ -57,7 +67,7 @@ myboot-d79789574-8qpzb   1/1       Running   0         1s
 
 and you can all the /configure endpoint
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
 Configuration: 
 databaseConn=Default
 msgBroker=Default
@@ -146,7 +156,7 @@ Data
 ====
 GREETING:
 ====
-Hujumbo
+jambo
 LOVE:
 ====
 Amour
@@ -157,7 +167,7 @@ Events:  <none>
 $ kubectl get cm my-config -o yaml
 apiVersion: v1
 data:
-  GREETING: Hujumbo
+  GREETING: jambo
   LOVE: Amour
 kind: ConfigMap
 metadata:
@@ -180,11 +190,11 @@ $ kubectl delete pod -l app=myboot
 ----
 
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
 Configuration for : myboot-694954fc6d-fzzf4
 databaseConn=Default
 msgBroker=Default
-hello=Hujumbo
+hello=jambo
 love=Amour
 ----
 
@@ -193,7 +203,7 @@ and switch to the other properties file by recreating the CM
 $ kubectl delete cm my-config
 $ kubectl create cm my-config --from-env-file=config/other.properties
 $ kubectl delete pod -l app=myboot
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/configure
 Configuration for : myboot-694954fc6d-nzdvx
 databaseConn=jdbc:sqlserver://123.123.123.123:1443;user=MyUserName;password=*****;
 msgBroker=tcp://localhost:61616?jms.useAsyncSend=true
@@ -203,3 +213,88 @@ love=Default
 
 There are a lot more ways to have fun with ConfigMaps, the core documentation has you manipulate a Pod specification instead of a Deployment but the results are basically the same
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap
+
+== Secrets
+
+The CM example earlier had an example of a database connection string ("user=MyUserName;password=*****"). Sensistive data like passwords can place in a different vessel known as a Secret.
+
+----
+$ kubectl create secret generic mysecret --from-literal=user='MyUserName' --from-literal=password='mypassword'
+----
+
+----
+$ kubectl get secrets
+----
+
+The user & password are not immediately visible
+----
+$ kubectl describe secret mysecret
+Name:         mysecret
+Namespace:    myspace
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+password:  10 bytes
+user:      10 bytes
+----
+
+----
+$ kubectl get secret mysecret -o yaml
+apiVersion: v1
+data:
+  password: bXlwYXNzd29yZA==
+  user: TXlVc2VyTmFtZQ==
+kind: Secret
+metadata:
+  creationTimestamp: "2019-10-08T19:34:43Z"
+  name: mysecret
+  namespace: myspace
+  resourceVersion: "28240"
+  selfLink: /api/v1/namespaces/myspace/secrets/mysecret
+  uid: adce776c-ea02-11e9-a569-080027f773ed
+type: Opaque
+----
+
+It is base64 encoded
+----
+$ echo 'bXlwYXNzd29yZA==' | base64 --decode
+mypassword
+$ echo 'TXlVc2VyTmFtZQ==' | base64 --decode
+MyUserName
+----
+
+OR
+----
+$ kubectl get secret mysecret -o jsonpath='{.data.password}' | base64 --decode 
+mypassword
+----
+
+Secrets are provided to the Pod via Volume Mounts
+----
+        volumeMounts:          
+          - name: mysecretvolume
+            mountPath: /mystuff/mysecretvolume
+----
+
+New deployment with the secret volume
+----
+$ kubectl replace -f kubefiles/myboot-deployment-configuration-secret.yml
+----
+
+Exec into the newly created pod, to see the volume mount
+----
+$ kubectl exec -it myboot-5d6ff444bd-x4bgh /bin/bash
+$ cd /mystuff/secretstuff
+$ cat user
+MyUserName
+$ cat password
+mypassword
+----
+
+You could provide the location of "/mystuff/mysecretvolume" to the pod via an environment variable so the application knows where to go looking.
+
+More information on https://kubernetes.io/docs/concepts/configuration/secret/[Secrets]
