@@ -23,7 +23,7 @@ public class MyRESTController {
 
    @RequestMapping("/")
    public String sayHello() {
-       greeting = environment.getProperty("GREETING","Aloha");
+       greeting = environment.getProperty("GREETING","Merhaba");
        System.out.println(greeting + " from " + hostname);
        return greeting + " from Spring Boot! " + count++ + " on " + hostname + "\n";
    }
