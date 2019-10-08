@@ -133,10 +133,10 @@ See what it produced
 
 ----
 $ kubectl get pods --show-labels
-NAME                    READY   STATUS    RESTARTS   AGE
-rs-quarkus-demo-mzb6m   1/1     Running   0          10s
-rs-quarkus-demo-rzfs2   1/1     Running   0          10s
-rs-quarkus-demo-zxbhq   1/1     Running   0          10s
+NAME                    READY   STATUS    RESTARTS   AGE   LABELS
+rs-quarkus-demo-64dnl   1/1     Running   0          49s   app=quarkus-demo,env=dev
+rs-quarkus-demo-8pn8b   1/1     Running   0          29s   app=quarkus-demo,env=dev
+rs-quarkus-demo-ksm5f   1/1     Running   0          16s   app=quarkus-demo,env=dev
 ----
 
 Pick a pod and delete it
