@@ -131,21 +131,21 @@ No wonder the JVM reports a larger than accurate Max memory
 $ curl localhost:8080/sysresources
  Memory: 1324 Cores: 2
 $ java -version
-openjdk version "1.8.0_181"
-OpenJDK Runtime Environment (build 1.8.0_181-8u181-b13-1~deb9u1-b13)
-OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
+openjdk version "1.8.0_151"
+OpenJDK Runtime Environment (build 1.8.0_151-8u151-b12-1~deb9u1-b12)
+OpenJDK 64-Bit Server VM (build 25.151-b12, mixed mode)
 $ java -XshowSettings:vm -version
 VM settings:
     Max. Heap Size (Estimated): 1.29G
     Ergonomics Machine Class: server
     Using VM: OpenJDK 64-Bit Server VM
 
-openjdk version "1.8.0_181"
-OpenJDK Runtime Environment (build 1.8.0_181-8u181-b13-1~deb9u1-b13)
-OpenJDK 64-Bit Server VM (build 25.181-b13, mixed mode)
+openjdk version "1.8.0_151"
+OpenJDK Runtime Environment (build 1.8.0_151-8u151-b12-1~deb9u1-b12)
+OpenJDK 64-Bit Server VM (build 25.151-b12, mixed mode)
 ----
 
-So we can check out the cgroups settings
+Check out the cgroups settings
 
 ----
 $ cd /sys/fs/cgroup/memory/
@@ -193,7 +193,7 @@ $ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
 
 Wait a moment for the pod to be recreated from the new image then
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/sysresources
  Memory: 112 Cores: 2
 ----
 
@@ -201,6 +201,6 @@ Now, your memory is more accurate though your core count is still high.  They ar
 
 And consume should no longer blow up
 ----
-$ curl $(minikube ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
+$ curl $(minikube --profile 9steps ip):$(kubectl get service/myboot -o jsonpath="{.spec.ports[*].nodePort}")/consume
 ----
 
