@@ -175,3 +175,9 @@ $ kubectl apply -f https://raw.githubusercontent.com/burrsutter/9stepsawesome/ma
 
 $ kubectl get kafkas
 ----
+
+=== Clean up
+----
+$ kubectl delete kafka burr-cluster
+$ kubectl delete namespace franz
+----
