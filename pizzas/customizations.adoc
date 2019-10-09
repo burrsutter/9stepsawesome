@@ -1,11 +1,22 @@
+= CRDs & Controllers
+
 Custom Resources extend the API
+
 Custom Controllers provide the functionality - continually maintains the desired state -  to monitor its state and reconcile the resource to match with the configuration
+
 https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
 
 https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/
 
 Custom Resource Definitions (CRDs) in version 1.7
 
+=== CRDs
+----
+$ kubectl get crds
+$ kubectl api-resources
+----
+
+=== Example CRD
 ----
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -29,80 +40,75 @@ spec:
     - pz
 ----
 
+=== Add Pizzas
 ----
-kubectl apply -f pizza-crd.yaml
+$ kubectl apply -f pizza-crd.yaml
 
-kubectl create namespace mystuff
-
-kubectl get pizzas
 ----
 
+=== Now part of the API
 ----
 $ kubectl get crds | grep pizza
 pizzas.mykubernetes.burrsutter.com                          2019-09-04T19:40:09Z
-----
-
-----
-kubectl proxy --port=8181
-
-curl localhost:8181
-
-curl localhost:8181/apis/mykubernetes.burrsuter.com
-
-curl localhost:8181/apis/mykubernetes.burrsuter.com/pizza
-
-ctrl-c
-
-kubectl apply -f cheese-pizza.yaml
-
-kubectl get pizzas
-
-kubectl describe pizza burrcheese
-----
-
-change 
-
-toppings: cheese
-
-----
-kubectl apply -f cheese-pizza.yaml
-
-The Pizza "burrcheese" is invalid: []: Invalid value: map[string]interface {}{"apiVersion":"mykubernetes.burrsutter.com/v1beta2", "kind":"Pizza", "metadata":map[string]interface {}{"annotations":map[string]interface {}{"kubectl.kubernetes.io/last-applied-configuration":"{\"apiVersion\":\"mykubernetes.burrsutter.com/v1beta2\",\"kind\":\"Pizza\",\"metadata\":{\"annotations\":{},\"name\":\"burrcheese\",\"namespace\":\"demo2-amq\"},\"spec\":{\"sauce\":\"regular\",\"toppings\":\"cheese\"}}\n"}, "creationTimestamp":"2019-09-04T21:47:12Z", "generation":2, "name":"burrcheese", "namespace":"demo2-amq", "resourceVersion":"1468450", "uid":"8db69d73-cf5d-11e9-a469-0a0b803a9c70"}, "spec":map[string]interface {}{"sauce":"regular", "toppings":"cheese"}}: validation failure list:
-spec.toppings in body must be of type array: "string"
-
-kubectl apply -f meat-lovers.yaml
-
-kubectl apply -f veggie-lovers.yaml
-
-kubectl get pizzas --all-namespaces
-
-kubectl delete pizzas --all
-
+$ kubectl api-resources | grep burr
 ----
 
 
-Example CRD
-Kafka CRD:
-https://github.com/strimzi/strimzi-kafka-operator/blob/master/install/cluster-operator/040-Crd-kafka.yaml
+=== Make some Pizzas
+----
+$ kubectl create namespace pizzahat
+
+$ kubectl config set-context --current --namespace=pizzahat
+
+$ kubectl apply -f cheese-pizza.yaml
+
+$ kubectl get pizzas
+
+$ kubectl describe pizza burrcheese
+----
+
+=== Make more Pizzas
+----
+
+$ kubectl apply -f meat-lovers.yaml
+
+$ kubectl apply -f veggie-lovers.yaml
+
+$ kubectl get pizzas --all-namespaces
+----
+
+=== Eat all Pizzas
+----
+$ kubectl delete pizzas --all
+----
+
+https://github.com/strimzi/strimzi-kafka-operator/blob/master/install/cluster-operator/040-Crd-kafka.yaml[Example CRD]
 
 
-Now, let's build a controller:
+== Controllers
+
+
+Build a controller via Metacontroller:
 https://metacontroller.app/guide/create/
 
+https://github.com/GoogleCloudPlatform/metacontroller
+
+Note: https://github.com/GoogleCloudPlatform/metacontroller/issues/184[Future?]
+
+=== Setup Metacontroller
+
 ----
-kubectl create namespace metacontroller
+$ kubectl create namespace metacontroller
 
-kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller-rbac.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller-rbac.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller.yaml
 
-stern metacontroller-0 -n metacontroller
+$ kubectl get pods --all-namespaces
 
-kubectl create namespace mystuff
+$ stern metacontroller-0 -n metacontroller
 
-kubens mystuff
-
-kubectl apply -f pizza-controller.yaml
+$ kubectl apply -f pizza-controller.yaml
 
 metacontroller-0 metacontroller I0904 22:23:35.324855       1 metacontroller.go:148] sync CompositeController pizza-controller
 metacontroller-0 metacontroller I0904 22:23:35.324899       1 factory.go:104] Starting shared informer for pizzas in mykubernetes.burrsutter.com/v1beta2
@@ -119,33 +125,53 @@ metacontroller-0 metacontroller I0904 22:23:35.525259       1 controller.go:39] 
 
 ----
 
+=== Add Pizza Controller
 ----
-kubectl -n mystuff apply -f pizza-controller.yaml
+kubectl -n pizzahat apply -f pizza-controller.yaml
 
-kubectl -n mystuff create configmap pizza-controller --from-file=sync.py
+kubectl -n pizzahat create configmap pizza-controller --from-file=sync.py
 
-kubectl -n mystuff apply -f webhook-py.yaml
+kubectl -n pizzahat apply -f webhook-py.yaml
+----
 
-then you are ready to deploy a pizza
+=== Deploy some Pizzas
 
-kubectl -n mystuff apply -f veggie-lovers.yaml
+----
+$ stern metacontroller-0 -n metacontroller
 
-kubectl logs burrveggie
+$ stern pizza-controller
+
+$ watch kubectl get pods 
+
+$ kubectl -n pizzahat apply -f veggie-lovers.yaml
+
+$ kubectl logs burrveggie
+----
+
+=== Eat the Pizza
+----
+$ kubectl delete pizza burrveggie
+$ kubectl delete namespace pizzahat
 ----
 
 === Kafka via OperatorHub
 
 ----
-curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/0.12.0/install.sh | bash -s 0.12.0
+$ kubectl create namespace franz
 
-kubectl create -f https://operatorhub.io/install/strimzi-kafka-operator.yaml
+$ kubectl config set-context --current --namespace=franz
 
-kubectl get csv -n operators
+$ curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/0.12.0/install.sh | bash -s 0.12.0
 
-kubectl get crds
+$ kubectl create -f https://operatorhub.io/install/strimzi-kafka-operator.yaml
 
-kubectl apply -f https://raw.githubusercontent.com/burrsutter/9stepsawesome/master/kubefiles/kafka-strimzi-minikube.yml
+$ kubectl get csv -n operators
+
+$ kubectl get crds | grep kafka
+
+$ watch kubectl get pods
+
+$ kubectl apply -f https://raw.githubusercontent.com/burrsutter/9stepsawesome/master/kubefiles/kafka-strimzi-minikube.yml
+
+$ kubectl get kafkas
 ----
-
-
-
