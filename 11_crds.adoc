@@ -1,0 +1,183 @@
+= CRDs & Controllers
+
+Custom Resources extend the API
+
+Custom Controllers provide the functionality - continually maintains the desired state -  to monitor its state and reconcile the resource to match with the configuration
+
+https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/
+
+https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/
+
+Custom Resource Definitions (CRDs) in version 1.7
+
+=== CRDs
+----
+$ kubectl get crds
+$ kubectl api-resources
+----
+
+=== Example CRD
+----
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: pizzas.mykubernetes.burrsutter.com
+  labels:
+    app: pizzamaker
+    mylabel: stuff
+  annotations:
+    "yourannotation": morestuff
+spec:
+  group: mykubernetes.burrsutter.com
+  scope: Namespaced
+  version: v1beta2
+  names:
+    kind: Pizza
+    listKind: PizzaList
+    plural: pizzas
+    singular: pizza
+    shortNames:
+    - pz
+----
+
+=== Add Pizzas
+----
+$ kubectl apply -f pizza-crd.yaml
+
+----
+
+=== Now part of the API
+----
+$ kubectl get crds | grep pizza
+pizzas.mykubernetes.burrsutter.com                          2019-09-04T19:40:09Z
+$ kubectl api-resources | grep burr
+----
+
+
+=== Make some Pizzas
+----
+$ kubectl create namespace pizzahat
+
+$ kubectl config set-context --current --namespace=pizzahat
+
+$ kubectl apply -f cheese-pizza.yaml
+
+$ kubectl get pizzas
+
+$ kubectl describe pizza burrcheese
+----
+
+=== Make more Pizzas
+----
+
+$ kubectl apply -f meat-lovers.yaml
+
+$ kubectl apply -f veggie-lovers.yaml
+
+$ kubectl get pizzas --all-namespaces
+----
+
+=== Eat all Pizzas
+----
+$ kubectl delete pizzas --all
+----
+
+https://github.com/strimzi/strimzi-kafka-operator/blob/master/install/cluster-operator/040-Crd-kafka.yaml[Example CRD]
+
+
+== Controllers
+
+
+Build a controller via Metacontroller:
+https://metacontroller.app/guide/create/
+
+https://github.com/GoogleCloudPlatform/metacontroller
+
+Note: https://github.com/GoogleCloudPlatform/metacontroller/issues/184[Future?]
+
+=== Setup Metacontroller
+
+----
+$ kubectl create namespace metacontroller
+
+$ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller-rbac.yaml
+
+$ kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/metacontroller/master/manifests/metacontroller.yaml
+
+$ kubectl get pods --all-namespaces
+
+$ stern metacontroller-0 -n metacontroller
+
+$ kubectl apply -f pizza-controller.yaml
+
+metacontroller-0 metacontroller I0904 22:23:35.324855       1 metacontroller.go:148] sync CompositeController pizza-controller
+metacontroller-0 metacontroller I0904 22:23:35.324899       1 factory.go:104] Starting shared informer for pizzas in mykubernetes.burrsutter.com/v1beta2
+metacontroller-0 metacontroller I0904 22:23:35.324940       1 factory.go:104] Starting shared informer for pods in v1
+metacontroller-0 metacontroller I0904 22:23:35.325019       1 controller.go:165] Starting Pizza CompositeController
+metacontroller-0 metacontroller I0904 22:23:35.325029       1 controller.go:169] Waiting for Pizza CompositeController caches to sync
+metacontroller-0 metacontroller I0904 22:23:35.325039       1 controller.go:32] Waiting for caches to sync for Pizza controller
+metacontroller-0 metacontroller I0904 22:23:35.325453       1 reflector.go:202] Starting reflector *unstructured.Unstructured (30m0s) from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.325476       1 reflector.go:240] Listing and watching *unstructured.Unstructured from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.325947       1 reflector.go:202] Starting reflector *unstructured.Unstructured (30m0s) from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.325963       1 reflector.go:240] Listing and watching *unstructured.Unstructured from metacontroller.app/dynamic/informer/factory.go:111
+metacontroller-0 metacontroller I0904 22:23:35.525234       1 shared_informer.go:123] caches populated
+metacontroller-0 metacontroller I0904 22:23:35.525259       1 controller.go:39] Caches are synced for Pizza controller
+
+----
+
+=== Add Pizza Controller
+----
+kubectl -n pizzahat apply -f pizza-controller.yaml
+
+kubectl -n pizzahat create configmap pizza-controller --from-file=sync.py
+
+kubectl -n pizzahat apply -f webhook-py.yaml
+----
+
+=== Deploy some Pizzas
+
+----
+$ stern metacontroller-0 -n metacontroller
+
+$ stern pizza-controller
+
+$ watch kubectl get pods 
+
+$ kubectl -n pizzahat apply -f veggie-lovers.yaml
+
+$ kubectl logs burrveggie
+----
+
+=== Eat the Pizza
+----
+$ kubectl delete pizza burrveggie
+$ kubectl delete namespace pizzahat
+----
+
+=== Kafka via OperatorHub
+
+----
+$ kubectl create namespace franz
+
+$ kubectl config set-context --current --namespace=franz
+
+$ curl -sL https://github.com/operator-framework/operator-lifecycle-manager/releases/download/0.12.0/install.sh | bash -s 0.12.0
+
+$ kubectl create -f https://operatorhub.io/install/strimzi-kafka-operator.yaml
+
+$ kubectl get csv -n operators
+
+$ kubectl get crds | grep kafka
+
+$ watch kubectl get pods
+
+$ kubectl apply -f https://raw.githubusercontent.com/burrsutter/9stepsawesome/master/kubefiles/kafka-strimzi-minikube.yml
+
+$ kubectl get kafkas
+----
+
+=== Clean up
+----
+$ kubectl delete kafka burr-cluster
+$ kubectl delete namespace franz
+----
