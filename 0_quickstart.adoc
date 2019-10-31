@@ -58,7 +58,7 @@ minikube start --profile 11steps
 
 === Run kubectl commands
 ----
-kubectl cluser-info
+kubectl cluster-info
 kubectl get nodes
 kubectl get nodes --show-labels
 kubectl get namespaces
