@@ -12,7 +12,7 @@ http.createServer((req, res) =>
         return;
     }
 
-    res.end(`Node Hello on ${os.hostname()} ${cnt++} \n`);
+    res.end(`Node Bonjour on ${os.hostname()} ${cnt++} \n`);
 }
     
 ).listen(8000);

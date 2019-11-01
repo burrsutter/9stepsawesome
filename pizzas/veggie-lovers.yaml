@@ -1,12 +1,9 @@
 apiVersion: mykubernetes.burrsutter.com/v1beta2
 kind: Pizza
 metadata:
-  name: burrveggie
+  name: burrveggie2
 spec:
   toppings: 
   - mozzarella
-  - mushrooms
-  - green peppers
-  - onions
   - black olives
   sauce: extra

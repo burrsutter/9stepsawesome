@@ -15,4 +15,4 @@ spec:
   hooks:
     sync:
       webhook:
-        url: http://pizza-controller.mystuff:8080/sync
+        url: http://pizza-controller.pizzahat:8080/sync

@@ -127,7 +127,6 @@ metacontroller-0 metacontroller I0904 22:23:35.525259       1 controller.go:39] 
 
 === Add Pizza Controller
 ----
-kubectl -n pizzahat apply -f pizza-controller.yaml
 
 kubectl -n pizzahat create configmap pizza-controller --from-file=sync.py
 
