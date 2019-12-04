@@ -25,6 +25,9 @@ cd bin
 ----
 
 === Download minikube & kubectl
+
+Some lines are Mac OS based, but if you are on Linux, change `darwin` to `linux`.
+
 ----
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.4.0/minikube-darwin-amd64
 
