@@ -412,6 +412,8 @@ $ docker images | grep myboot
 Rollout the update
 ----
 $ kubectl set image deployment/myboot myboot=9stepsawesome/myboot:v2
+OR
+$ kubectl set image deployment/myboot myboot=quay.io/burrsutter/myboot:v2
 ----
 
 And if you were running your polling curl command, you might see
