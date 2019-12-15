@@ -254,7 +254,7 @@ $ while true; do curl $IP:$PORT; sleep .5; done
 
 === Clean Up
 ----
-$ kubectl delete the-service
+$ kubectl delete service the-service
 $ kubectl delete deployment quarkus-demo-deployment
 ----
 
