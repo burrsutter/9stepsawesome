@@ -1,5 +1,5 @@
 FROM openjdk:8
-ENV JAVA_APP_JAR boot-demo-0.0.1.jar
+ENV JAVA_APP_JAR boot-demo-1.0.0.jar
 WORKDIR /app/
 COPY target/$JAVA_APP_JAR .
 EXPOSE 8080
