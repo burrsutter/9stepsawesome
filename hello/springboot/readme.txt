@@ -10,20 +10,19 @@ ctrl-c
 
 Manual Deployment
 
-docker build -f Dockerfile -t dev.local/burrsutter/boot-demo:1.0.0 .
-or 
-docker build -f Dockerfile.openshift -t dev.local/burrsutter/boot-demo:1.0.0 .
+export IMAGE_VER=boot-demo:1.0.0
 
+docker build -f Dockerfile -t dev.local/burrsutter/$IMAGE_VER .
 docker login docker.io
-docker images | grep boot-demo
-
-docker tag $1 docker.io/burrsutter/boot-demo:1.0.0
-docker push docker.io/burrsutter/boot-demo:1.0.0
+docker tag dev.local/burrsutter/$IMAGE_VER docker.io/burrsutter/$IMAGE_VER
+docker push docker.io/burrsutter/$IMAGE_VER
 
 or
 
+docker build -f Dockerfile -t dev.local/burrsutter/$IMAGE_VER .
 docker login quay.io
-docker images | grep boot-demo
+docker tag dev.local/burrsutter/$IMAGE_VER quay.io/burrsutter/$IMAGE_VER
+docker push quay.io/burrsutter/$IMAGE_VER
 
-docker tag $1 quay.io/burrsutter/boot-demo:1.0.0
-docker push quay.io/burrsutter/boot-demo:1.0.0
+or 
+docker build -f Dockerfile.openshift -t dev.local/burrsutter/$IMAGE_VER .
