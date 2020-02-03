@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMAGE_VER=boot-demo:1.0.0
+IMAGE_VER=quarkus-demo:2.0.0
 
 docker build -f Dockerfile -t dev.local/burrsutter/$IMAGE_VER .
 docker login quay.io
