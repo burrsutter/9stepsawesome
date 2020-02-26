@@ -29,13 +29,13 @@ cd bin
 Some lines are Mac OS based, but if you are on Linux, change `darwin` to `linux`.
 
 ----
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.4.0/minikube-darwin-amd64
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.7.2/minikube-darwin-amd64
 
 chmod +x minikube
 
 ./minikube version
 
-curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.0/bin/darwin/amd64/kubectl 
+curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.15.0/bin/darwin/amd64/kubectl 
 
 chmod +x kubectl
 
