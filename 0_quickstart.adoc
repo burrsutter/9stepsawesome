@@ -76,6 +76,8 @@ kubectl get pods --all-namespaces -o wide
 minikube --profile 11steps dashboard
 ----
 
+TIP: "minikube profile 11steps" will set that as the default, make it sticky, therefore you will not have to type "minikube --profile 11steps" for subsequent commands
+
 === Deploy Something
 ----
 kubectl create deployment myapp --image=quay.io/burrsutter/myboot:v1
