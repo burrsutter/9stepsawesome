@@ -1,5 +1,6 @@
 = Main Readme
 
+A new version of this tutorial is being maintained at https://dn.dev/kube-tutorial
 
 Slides for 9 Steps to Awesome with Kubernetes at http://bit.ly/9stepsawesome[bit.ly/9stepsawesome]
 
