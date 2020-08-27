@@ -8,7 +8,7 @@ https://blog.christianposta.com/kubernetes/java-remote-debug-for-applications-ru
 
 https://hub.docker.com/r/fabric8/java-jboss-openjdk8-jdk/
 
-https://maven.fabric8.io/#fabric8:debug
+https://www.eclipse.org/jkube/docs/kubernetes-maven-plugin#jkube:debug
 
 https://code.visualstudio.com/docs/java/java-kubernetes
 
@@ -16,7 +16,7 @@ https://code.visualstudio.com/blogs/2017/09/28/java-debug
 
 For springboot
 
-Create a directory hello/springboot/src/main/fabric8
+Create a directory `hello/springboot/src/main/jkube`
 
 Create a file called service.yml
 
@@ -36,30 +36,87 @@ metadata:
   namespace: myspace
 ----
 
-mvn io.fabric8:fabric8-maven-plugin:3.5.40:setup
+Setup [Eclipse JKube](https://www.eclipse.org/jkube) in your `pom.xml` by adding this to `<plugins>` section:
+- For Kubernetes:
 
-mvn fabric8:debug
+[source]
+----
+<plugin>
+  <groupId>org.eclipse.jkube</groupId>
+  <artifactId>kubernetes-maven-plugin</artifactId>
+  <version>${jkube.version}</version>
+  <executions>
+    <execution>
+      <id>jkube</id>
+      <goals>
+        <goal>resource</goal>
+        <goal>helm</goal>
+        <goal>build</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+----
+Run `k8s:debug` goal to debug your application running in Kubernetes:
+
+[source]
+----
+mvn k8s:debug
+
+...
+[INFO] --- kubernetes-maven-plugin:1.0.0-rc-1:debug (default-cli) @ boot-demo ---
+[INFO] k8s: Using Kubernetes at https://192.168.39.71:8443/ in namespace default with manifest /home/rohaan/work/repos/9stepsawesome/hello/springbootjkube/target/classes/META-INF/jkube/kubernetes.yml
+[INFO] k8s: Using namespace: default
+[INFO] k8s: Updating Service from kubernetes.yml
+[INFO] k8s: Updated Service: target/jkube/applyJson/default/service-boot-demo-2.json
+[INFO] k8s: Enabling debug on Deployment boot-demo
+[INFO] k8s: Waiting for debug pod with selector LabelSelector(matchExpressions=[], matchLabels={app=boot-demo, provider=jkube, group=com.burrsutter}, additionalProperties={}) and environment variables {JAVA_DEBUG_SUSPEND=false, JAVA_ENABLE_DEBUG=true}
+[INFO] k8s: Port forwarding to port 5005 on pod boot-demo-5546889b66-l74zz using command /home/rohaan/.local/bin/kubectl
+----
+
+- For OpenShift:
+
+[source]
+----
+<plugin>
+  <groupId>org.eclipse.jkube</groupId>
+  <artifactId>openshift-maven-plugin</artifactId>
+  <version>${jkube.version}</version>
+  <executions>
+    <execution>
+      <id>jkube</id>
+      <goals>
+        <goal>resource</goal>
+        <goal>build</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
 
 ----
+
+[source]
+----
+mvn oc:debug
+
 ...
-[INFO] Using namespace: default
-Trying internal type for name:Service
-Trying internal type for name:Deployment
-[INFO] Updating a Service from kubernetes.yml
-[INFO] Updated Service: target/fabric8/applyJson/default/service-boot-demo-1.json
-[INFO] F8: Enabling debug on Deployment boot-demo
-[WARNING] The client is using resource type 'deployments' with unstable version 'v1beta1'
-[INFO] F8: Waiting for debug pod with selector LabelSelector(matchExpressions=[], matchLabels={app=boot-demo, provider=fabric8, group=com.burrsutter}, additionalProperties={}) and environment variables {JAVA_DEBUG_SUSPEND=false, JAVA_ENABLE_DEBUG=true}
-Trying internal type for name:Pod
-[INFO] F8:[W] boot-demo-bd7bcfd87-smthv status: Pending 
-[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running Ready
-[INFO] F8:[W] boot-demo-bd7bcfd87-smthv status: Pending 
-[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running 
-[INFO] F8:[W] boot-demo-bd7bcfd87-smthv status: Running Ready
-[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running 
-[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running 
-[INFO] F8: Port forwarding to port 5005 on pod boot-demo-bd7bcfd87-smthv using command /Users/burrsutter/minikube_0.28.1/bin/kubectl
-[INFO] F8:[W] boot-demo-55d8cc66fd-qpws4 status: Running : Pod Deleted
+[INFO] --- openshift-maven-plugin:1.0.0-rc-1:debug (default-cli) @ boot-demo ---
+[INFO] oc: Using OpenShift at https://api.rh-idev.openshift.com:443/ in namespace rokumar with manifest /home/rohaan/work/repos/9stepsawesome/hello/springbootjkube/target/classes/META-INF/jkube/openshift.yml
+[INFO] oc: OpenShift platform detected
+[INFO] oc: Using project: rokumar
+[INFO] oc: Updating Service from openshift.yml
+[INFO] oc: Updated Service: target/jkube/applyJson/rokumar/service-boot-demo-1.json
+[INFO] oc: Enabling debug on DeploymentConfig boot-demo
+[INFO] oc: Updating Route from openshift.yml
+[INFO] oc: Updated Route: target/jkube/applyJson/rokumar/route-boot-demo-1.json
+[INFO] oc: Waiting for debug pod with selector LabelSelector(matchExpressions=[], matchLabels={app=boot-demo, provider=jkube, group=com.burrsutter}, additionalProperties={}) and environment variables {JAVA_DEBUG_SUSPEND=false, JAVA_ENABLE_DEBUG=true}
+[INFO] oc:  [W] boot-demo-4-fbdcw status: Running Ready
+[INFO] oc:  [W] boot-demo-5-mxm5q status: Pending
+[INFO] oc:  [W] boot-demo-5-mxm5q status: Pending
+[INFO] oc:  [W] boot-demo-5-mxm5q status: Pending
+[INFO] oc:  [W] boot-demo-5-mxm5q status: Running Ready
+[INFO] oc: Port forwarding to port 5005 on pod boot-demo-5-mxm5q using command /home/rohaan/.local/bin/oc
+
 ----
 
 Visual Studio Code
