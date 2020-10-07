@@ -21,6 +21,7 @@
 
   <properties>
     <java.version>1.8</java.version>
+    <jkube.version>1.0.1</jkube.version>
   </properties>
 
   <build>
@@ -41,9 +42,9 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>io.jshift</groupId>
-            <artifactId>k8s-maven-plugin</artifactId>
-            <version>0.1.0</version>
+            <groupId>org.eclipse.jkube</groupId>
+            <artifactId>kubernetes-maven-plugin</artifactId>
+            <version>${jkube.version}</version>
 
             <configuration>
 
@@ -95,9 +96,9 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>io.jshift</groupId>
-            <artifactId>oc-maven-plugin</artifactId>
-            <version>0.1.0</version>
+            <groupId>org.eclipse.jkube</groupId>
+            <artifactId>openshift-maven-plugin</artifactId>
+            <version>${jkube.version}</version>
 
             <configuration>
 

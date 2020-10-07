@@ -1,6 +1,6 @@
-= jshift
+= Eclipse JKube
 
-http://jshift.io;[jshift.io]
+https://www.eclipse.org/jkube/;[Eclipse JKube]
 
 This example builds a linux container image, without a Dockerfile.  And it generates the Kubernetes manifests and deploys your app into minikube
 
@@ -12,8 +12,8 @@ $ eval $(minikube --profile 9steps docker-env)
 === Generates the Kube manifests 
 ----
 $ mvn clean k8s:resource -Pkubernetes
-$ ls target/classes/META-INF/jshift
-$ cat target/classes/META-INF/jshift/kubernetes.yml
+$ ls target/classes/META-INF/jkube
+$ cat target/classes/META-INF/jkube/kubernetes.yml
 ----
 
 === Build artifacts
