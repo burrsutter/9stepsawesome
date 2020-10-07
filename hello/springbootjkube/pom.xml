@@ -21,7 +21,7 @@
 
   <properties>
     <java.version>1.8</java.version>
-    <jkube.version>1.0.0-rc-1</jkube.version>
+    <jkube.version>1.0.1</jkube.version>
   </properties>
 
   <build>

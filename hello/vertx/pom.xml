@@ -7,7 +7,7 @@
     <vertx.version>3.4.2</vertx.version>
     <vertx.verticle>com.burrsutter.MainVerticle</vertx.verticle>
     <vertx-maven-plugin.version>1.0.22</vertx-maven-plugin.version>
-    <jkube.version>1.0.0-rc-1</jkube.version>
+    <jkube.version>1.0.1</jkube.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.target>1.8</maven.compiler.target>

@@ -64,7 +64,7 @@ Run `k8s:debug` goal to debug your application running in Kubernetes:
 mvn k8s:debug
 
 ...
-[INFO] --- kubernetes-maven-plugin:1.0.0-rc-1:debug (default-cli) @ boot-demo ---
+[INFO] --- kubernetes-maven-plugin:1.0.1:debug (default-cli) @ boot-demo ---
 [INFO] k8s: Using Kubernetes at https://192.168.39.71:8443/ in namespace default with manifest /home/rohaan/work/repos/9stepsawesome/hello/springbootjkube/target/classes/META-INF/jkube/kubernetes.yml
 [INFO] k8s: Using namespace: default
 [INFO] k8s: Updating Service from kubernetes.yml
@@ -100,7 +100,7 @@ mvn k8s:debug
 mvn oc:debug
 
 ...
-[INFO] --- openshift-maven-plugin:1.0.0-rc-1:debug (default-cli) @ boot-demo ---
+[INFO] --- openshift-maven-plugin:1.0.1:debug (default-cli) @ boot-demo ---
 [INFO] oc: Using OpenShift at https://api.rh-idev.openshift.com:443/ in namespace rokumar with manifest /home/rohaan/work/repos/9stepsawesome/hello/springbootjkube/target/classes/META-INF/jkube/openshift.yml
 [INFO] oc: OpenShift platform detected
 [INFO] oc: Using project: rokumar
